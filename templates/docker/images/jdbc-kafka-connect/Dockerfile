@@ -19,8 +19,8 @@ USER root
 
 RUN set -e && \
     yum clean all && rm -rf /var/cache/yum/* && \
-    yum install -y wget gcc make unzip jq && \
-    wget https://github.com/rofl0r/proxychains-ng/archive/master.zip && \
+    yum install -y --setopt=sslverify=false wget gcc make unzip jq && \
+    wget --no-check-certificate https://github.com/rofl0r/proxychains-ng/archive/master.zip && \
     unzip master.zip && \
     cd proxychains-ng-master && \
     ./configure --prefix=/usr --sysconfdir=/etc && \
