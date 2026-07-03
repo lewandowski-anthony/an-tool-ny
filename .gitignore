@@ -1,0 +1,59 @@
+# --- Security & Secrets ---
+.env
+*.env.*
+*.pem
+*.key
+*.pkcs12
+*.pfx
+secrets.*
+credentials.json
+
+# --- Operating System Files ---
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+Thumbs.db
+Ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.trash/
+
+# --- IDEs and Editors ---
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# --- Logs and temporary files ---
+*.log
+logs/
+*.tmp
+*.bak
+*.pid
+
+# --- Language specific (Python, Node, etc.) ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+env/
+venv/
+
+node_modules/
+npm-debug.log*
+
+# --- Local test files ---
+scratchpad/
+test-local/
+tmp/

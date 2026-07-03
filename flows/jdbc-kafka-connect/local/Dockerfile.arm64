@@ -1,0 +1,30 @@
+FROM confluentinc/cp-kafka-connect-base:7.2.2
+
+ENV PROXYCHAIN_CONF=/etc/proxychains/proxychains.conf
+
+LABEL org.opencontainers.image.title="Smart Supply - JDBC Kafka connect"
+LABEL org.opencontainers.image.description="Kafka connect image with JDBC plugin and proxychains"
+LABEL org.opencontainers.image.source="https://github.com/dktunited/smart-supply-back/tree/main/flows/jdbc-kafka-connect"
+LABEL org.opencontainers.image.vendor="DECATHLON"
+LABEL org.opencontainers.image.licenses="Internal"
+
+USER root
+
+RUN yum update -y && yum upgrade
+RUN yum install -y wget gcc make unzip
+
+RUN wget https://download-ib01.fedoraproject.org/pub/epel/8/Everything/aarch64/Packages/p/proxychains-ng-4.16-1.el8.aarch64.rpm &&\
+    rpm -i proxychains-ng-4.16-1.el8.aarch64.rpm &&\
+    rm proxychains-ng-4.16-1.el8.aarch64.rpm
+
+RUN yum update -y
+
+ADD docker/proxychains.conf $PROXYCHAIN_CONF
+
+USER jdbc-connector
+
+ENV CONNECT_PLUGIN_PATH="/usr/share/java,/usr/share/confluent-hub-components"
+
+RUN confluent-hub install --no-prompt confluentinc/kafka-connect-jdbc:10.7.4
+
+ENTRYPOINT ["docker/entrypoint.sh"]
