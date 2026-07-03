@@ -34,6 +34,9 @@ $RECYCLE.BIN/
 *.sln
 *.swp
 
+# --- Results ---
+**/results/**
+
 # --- Logs and temporary files ---
 *.log
 logs/

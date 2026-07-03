@@ -1,0 +1,54 @@
+[user]
+    name = Anthony Lewandowski
+    email = anthony.lewandowski@entreprise.com
+
+[core]
+    editor = vim
+    autocrlf = input
+    whitespace = fix,-indent-with-non-tab,trailing-space,cr-at-eol
+
+[color]
+    ui = auto
+
+[color "branch"]
+    current = yellow bold
+    local = green
+    remote = cyan
+
+[color "diff"]
+    meta = yellow bold
+    frag = magenta bold
+    old = red bold
+    new = green bold
+
+[color "status"]
+    added = green
+    changed = yellow
+    untracked = cyan
+
+[alias]
+    # Colored history
+    lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+
+    # SHORTCUTS
+    st = status-s
+    co = checkout
+    br = branch
+    cm = commit -m
+    ca = commit --amend --no-edit
+    ps = push
+    pl = pull
+
+    sync = !git fetch --prune && git pull
+    purged-branches = !git branch --merged | sed 's/^[*[:space:]]*//' | grep -vE '^(main|master|develop)$'
+
+[http]
+    # proxy = http://proxy.ma-boite.com:8080
+    # sslVerify = false
+
+[push]
+    default = current
+    autoSetupRemote = true
+
+[pull]
+    rebase = true
