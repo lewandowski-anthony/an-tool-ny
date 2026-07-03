@@ -32,8 +32,8 @@ RUN set -e && \
     mkdir -p "$ENTRYPOINT_HOME" "$KAFKA_HOME" && \
     chown -R "$USER:$USER" "$ENTRYPOINT_HOME" "$KAFKA_HOME"
 
-COPY docker/proxychains.conf $PROXYCHAIN_CONF
-COPY docker/entrypoint.sh $ENTRYPOINT_HOME/$ENTRYPOINT_NAME
+COPY entrypoint/proxychains.conf $PROXYCHAIN_CONF
+COPY entrypoint/entrypoint.sh $ENTRYPOINT_HOME/$ENTRYPOINT_NAME
 COPY scripts/healthy.sh $ENTRYPOINT_HOME/healthy.sh
 
 RUN chmod +x "$ENTRYPOINT_HOME/$ENTRYPOINT_NAME" "$ENTRYPOINT_HOME/healthy.sh"
