@@ -14,6 +14,7 @@ This Bash utility introspects a live PostgreSQL schema and generates a ready-to-
 * **Referential Integrity**: Every foreign key is emitted as a sub-query that targets a randomly selected, actually-present parent row.
 * **Safe Bulk Inserts**: `--rows` generates multiple rows per table, and every statement uses `ON CONFLICT DO NOTHING` so unique/composite-key collisions never abort the transaction.
 * **Views Excluded**: Only `BASE TABLE` objects are populated; views and their triggers are ignored.
+* **Migration Tables Ignored**: Schema-versioning tables from **Flyway** (`flyway_schema_history`, `schema_version`) and **Liquibase** (`databasechangelog`, `databasechangeloglock`) are skipped automatically.
 
 ---
 

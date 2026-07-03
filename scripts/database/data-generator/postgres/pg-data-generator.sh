@@ -69,7 +69,7 @@ rm -f "$COLUMNS_META_FILE" "$FK_MAP_FILE" "$CHECK_MAP_FILE" "$OUTPUT_FILE"
 
 echo "Step 1: Querying database system catalogue metadata..."
 
-COLUMNS_QUERY="SELECT c.table_name || '|' || c.column_name || '|' || c.data_type || '|' || COALESCE(c.character_maximum_length::text, '') FROM information_schema.columns c JOIN information_schema.tables t ON t.table_name = c.table_name AND t.table_schema = c.table_schema WHERE c.table_schema = '${DB_SCHEMA}' AND t.table_type = 'BASE TABLE' AND (c.column_default IS NULL OR c.column_default NOT LIKE 'nextval%') AND c.is_identity = 'NO' ORDER BY c.table_name, c.ordinal_position;"
+COLUMNS_QUERY="SELECT c.table_name || '|' || c.column_name || '|' || c.data_type || '|' || COALESCE(c.character_maximum_length::text, '') FROM information_schema.columns c JOIN information_schema.tables t ON t.table_name = c.table_name AND t.table_schema = c.table_schema WHERE c.table_schema = '${DB_SCHEMA}' AND t.table_type = 'BASE TABLE' AND lower(c.table_name) NOT IN ('flyway_schema_history', 'schema_version', 'databasechangelog', 'databasechangeloglock') AND (c.column_default IS NULL OR c.column_default NOT LIKE 'nextval%') AND c.is_identity = 'NO' ORDER BY c.table_name, c.ordinal_position;"
 run_query "$COLUMNS_QUERY" "$COLUMNS_META_FILE"
 
 FK_QUERY="SELECT nk.relname AS child_table, a.attname AS child_column, nr.relname AS parent_table, pa.attname AS parent_column FROM pg_constraint c JOIN pg_class nk ON c.conrelid = nk.oid JOIN pg_class nr ON c.confrelid = nr.oid JOIN pg_attribute a ON a.attrelid = c.conrelid AND a.attnum = c.conkey[1] JOIN pg_attribute pa ON pa.attrelid = c.confrelid AND pa.attnum = c.confkey[1] WHERE c.contype = 'f' AND c.connamespace = (SELECT oid FROM pg_namespace WHERE nspname = '${DB_SCHEMA}');"
