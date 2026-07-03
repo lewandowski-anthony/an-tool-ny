@@ -11,6 +11,7 @@ DB_USER=""
 DB_PASS=""
 DB_NAME=""
 DB_SCHEMA="public"
+ROWS="1"
 
 usage() {
     echo "Usage: $0 [options]"
@@ -21,6 +22,7 @@ usage() {
     echo "  --pass <password>    PostgreSQL password"
     echo "  --name <db_name>     PostgreSQL database name"
     echo "  --schema <schema>    PostgreSQL schema name (default: public)"
+    echo "  --rows <count>       Number of rows to generate per table (default: 1)"
     exit 1
 }
 
@@ -32,8 +34,9 @@ while [[ $# -gt 0 ]]; do
         --pass) DB_PASS="$2"; shift 2 ;;
         --name) DB_NAME="$2"; shift 2 ;;
         --schema) DB_SCHEMA="$2"; shift 2 ;;
+        --rows) ROWS="$2"; shift 2 ;;
         -h|--help) usage ;;
-        *) echo "❌ Option inconnue: $1"; usage ;;
+        *) echo "Unknown option: $1"; usage ;;
     esac
 done
 
@@ -41,53 +44,67 @@ if [[ -z "$DB_HOST" || -z "$DB_PORT" || -z "$DB_USER" || -z "$DB_PASS" || -z "$D
     usage
 fi
 
+if ! [[ "$ROWS" =~ ^[1-9][0-9]*$ ]]; then
+    echo "Error: --rows must be a positive integer."
+    exit 1
+fi
+
 COLUMNS_META_FILE="${RESULT_DIR}/${DB_NAME}_columns.txt"
 FK_MAP_FILE="${RESULT_DIR}/${DB_NAME}_fk_map.txt"
 CHECK_MAP_FILE="${RESULT_DIR}/${DB_NAME}_check_map.txt"
 OUTPUT_FILE="${RESULT_DIR}/${DB_NAME}_random_data.sql"
 
+cleanup_metadata() {
+    rm -f "$COLUMNS_META_FILE" "$FK_MAP_FILE" "$CHECK_MAP_FILE"
+}
+
+run_query() {
+    local query="$1"
+    local output="$2"
+    docker run --rm --network host -e PGPASSWORD="$DB_PASS" postgres:latest \
+        psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -t -A -c "$query" > "$output" 2>/dev/null
+}
+
 rm -f "$COLUMNS_META_FILE" "$FK_MAP_FILE" "$CHECK_MAP_FILE" "$OUTPUT_FILE"
 
-echo "📡 Step 1: Querying database system catalogue metadata..."
+echo "Step 1: Querying database system catalogue metadata..."
 
-# 1. Extraction de toutes les colonnes de toutes les tables du schéma cible
 COLUMNS_QUERY="SELECT c.table_name || '|' || c.column_name || '|' || c.data_type || '|' || COALESCE(c.character_maximum_length::text, '') FROM information_schema.columns c JOIN information_schema.tables t ON t.table_name = c.table_name AND t.table_schema = c.table_schema WHERE c.table_schema = '${DB_SCHEMA}' AND t.table_type = 'BASE TABLE' AND (c.column_default IS NULL OR c.column_default NOT LIKE 'nextval%') AND c.is_identity = 'NO' ORDER BY c.table_name, c.ordinal_position;"
-docker run --rm --network host -e PGPASSWORD="$DB_PASS" postgres:latest psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -t -A -c "$COLUMNS_QUERY" > "$COLUMNS_META_FILE" 2>/dev/null
+run_query "$COLUMNS_QUERY" "$COLUMNS_META_FILE"
 
-# 2. Extraction du graphe de clés étrangères (A pointe vers B sur telle colonne)
 FK_QUERY="SELECT nk.relname AS child_table, a.attname AS child_column, nr.relname AS parent_table, pa.attname AS parent_column FROM pg_constraint c JOIN pg_class nk ON c.conrelid = nk.oid JOIN pg_class nr ON c.confrelid = nr.oid JOIN pg_attribute a ON a.attrelid = c.conrelid AND a.attnum = c.conkey[1] JOIN pg_attribute pa ON pa.attrelid = c.confrelid AND pa.attnum = c.confkey[1] WHERE c.contype = 'f' AND c.connamespace = (SELECT oid FROM pg_namespace WHERE nspname = '${DB_SCHEMA}');"
-docker run --rm --network host -e PGPASSWORD="$DB_PASS" postgres:latest psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -t -A -c "$FK_QUERY" > "$FK_MAP_FILE" 2>/dev/null
+run_query "$FK_QUERY" "$FK_MAP_FILE"
 
-# 2b. Extraction des CHECK constraints (pour respecter les valeurs autorisées de type énumération)
 CHECK_QUERY="SELECT rel.relname || '|' || pg_get_constraintdef(c.oid) FROM pg_constraint c JOIN pg_class rel ON c.conrelid = rel.oid WHERE c.contype = 'c' AND c.connamespace = (SELECT oid FROM pg_namespace WHERE nspname = '${DB_SCHEMA}');"
-docker run --rm --network host -e PGPASSWORD="$DB_PASS" postgres:latest psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -t -A -c "$CHECK_QUERY" > "$CHECK_MAP_FILE" 2>/dev/null
+run_query "$CHECK_QUERY" "$CHECK_MAP_FILE"
 
 if [ ! -s "$COLUMNS_META_FILE" ]; then
-    echo "❌ Error: Failed to extract structural info or scheme '${DB_SCHEMA}' is empty."
-    rm -f "$COLUMNS_META_FILE" "$FK_MAP_FILE"
+    echo "Error: Failed to extract structural info or schema '${DB_SCHEMA}' is empty."
+    cleanup_metadata
     exit 1
 fi
 
-echo "🎲 Step 2: Running inline recursive dependency builder..."
+echo "Step 2: Resolving dependencies and generating random data (${ROWS} row(s) per table)..."
 
-# 3. Moteur Node de résolution à la volée injecté directement
 node -e '
 const fs = require("fs");
 
-const rawColumns = fs.readFileSync(process.argv[1], "utf-8").split("\n").map(c => c.trim()).filter(Boolean);
-const rawFKs = fs.readFileSync(process.argv[2], "utf-8").split("\n").map(f => f.trim()).filter(Boolean);
+const readLines = (path) => (path && fs.existsSync(path))
+    ? fs.readFileSync(path, "utf-8").split("\n").map(l => l.trim()).filter(Boolean)
+    : [];
+
+const rawColumns = readLines(process.argv[1]);
+const rawFKs = readLines(process.argv[2]);
 const outputFile = process.argv[3];
 const schemaName = process.argv[4];
-const checkFile = process.argv[5];
-
-const rawChecks = (checkFile && fs.existsSync(checkFile))
-    ? fs.readFileSync(checkFile, "utf-8").split("\n").map(c => c.trim()).filter(Boolean)
-    : [];
+const rawChecks = readLines(process.argv[5]);
+const rowCount = Math.max(1, parseInt(process.argv[6] || "1", 10));
 
 const tablesList = new Set();
 const columnsMap = {};
 const childToParent = {};
 const allowedValues = {};
+const effLen = {};
 
 for (const line of rawColumns) {
     const [table, col, type, maxLen] = line.split("|");
@@ -102,8 +119,6 @@ for (const line of rawFKs) {
     childToParent[childTable][childCol] = { parentTable, parentCol };
 }
 
-// Longueur effective : une valeur réutilisée via FK doit tenir dans la colonne enfant la plus étroite.
-const effLen = {};
 for (const table in columnsMap) {
     effLen[table] = {};
     for (const col of columnsMap[table]) effLen[table][col.name] = col.maxLen;
@@ -124,7 +139,6 @@ while (changed) {
     }
 }
 
-// Parsing des CHECK de type col = ANY (ARRAY[...]) enumeration
 for (const line of rawChecks) {
     const sepIndex = line.indexOf("|");
     if (sepIndex === -1) continue;
@@ -146,27 +160,53 @@ for (const line of rawChecks) {
     }
 }
 
-const generateString = (maxLen) => {
-    const len = maxLen ? Math.min(maxLen, 8) : 8;
-    return `\x27${Array.from({length: len}, () => "abcdefghijklmnopqrstuvwxyz"[Math.floor(Math.random() * 26)]).join("")}\x27`;
-};
+const rand = (n) => Math.floor(Math.random() * n);
+const randChars = (len, alphabet) => Array.from({length: len}, () => alphabet[rand(alphabet.length)]).join("");
+const quote = (s) => `\x27${s}\x27`;
+
+const LETTERS = "abcdefghijklmnopqrstuvwxyz";
+const HEX = "0123456789abcdef";
+
+const generateString = (maxLen) => quote(randChars(maxLen ? Math.min(maxLen, 8) : 8, LETTERS));
 const generateUUID = () => {
-    const h = "0123456789abcdef";
-    const r = (len) => Array.from({length: len}, () => h[Math.floor(Math.random() * 16)]).join("");
-    const y = "89ab"[Math.floor(Math.random() * 4)];
-    return `\x27${r(8)}-${r(4)}-4${r(3)}-${y}${r(3)}-${r(12)}\x27`;
+    const y = "89ab"[rand(4)];
+    return quote(`${randChars(8, HEX)}-${randChars(4, HEX)}-4${randChars(3, HEX)}-${y}${randChars(3, HEX)}-${randChars(12, HEX)}`);
 };
-const generateInt = () => Math.floor(Math.random() * 1000) + 1;
+const generateInt = () => rand(1000) + 1;
 const generateBool = () => Math.random() > 0.5 ? "TRUE" : "FALSE";
 const generateDate = () => {
-    const y = 2000 + Math.floor(Math.random() * 25);
-    const m = String(Math.floor(Math.random() * 12) + 1).padStart(2, "0");
-    const d = String(Math.floor(Math.random() * 28) + 1).padStart(2, "0");
-    return `\x27${y}-${m}-${d}\x27`;
+    const y = 2000 + rand(25);
+    const m = String(rand(12) + 1).padStart(2, "0");
+    const d = String(rand(28) + 1).padStart(2, "0");
+    return quote(`${y}-${m}-${d}`);
 };
-const generateJson = () => {
-    const key = Array.from({length: 5}, () => "abcdefghijklmnopqrstuvwxyz"[Math.floor(Math.random() * 26)]).join("");
-    return `\x27{"${key}": ${Math.floor(Math.random() * 1000)}}\x27`;
+const generateJson = () => quote(`{"${randChars(5, LETTERS)}": ${rand(1000)}}`);
+
+const columnMaxLen = (tableName, name, fallback) =>
+    (effLen[tableName] && effLen[tableName][name] != null) ? effLen[tableName][name] : fallback;
+
+const generateValue = (tableName, col) => {
+    const t = col.type.toUpperCase();
+    const name = col.name;
+    const isUuid = t.includes("UUID") || t.includes("USER-DEFINED");
+
+    if (childToParent[tableName] && childToParent[tableName][name]) {
+        const link = childToParent[tableName][name];
+        return `(SELECT ${link.parentCol} FROM ${schemaName}.${link.parentTable} ORDER BY random() LIMIT 1)`;
+    }
+
+    if (allowedValues[tableName] && allowedValues[tableName][name]) {
+        const opts = allowedValues[tableName][name];
+        return quote(opts[rand(opts.length)].replace(/\x27/g, "\x27\x27"));
+    }
+
+    if (name.toLowerCase() === "id" || isUuid) return generateUUID();
+    if (t.includes("JSON")) return generateJson();
+    if (t.includes("INT") || t.includes("NUMERIC")) return generateInt();
+    if (t.includes("FLOAT") || t.includes("DOUBLE") || t.includes("DECIMAL")) return "12.50";
+    if (t.includes("BOOL")) return generateBool();
+    if (t.includes("TIME") || t.includes("DATE")) return generateDate();
+    return generateString(columnMaxLen(tableName, name, col.maxLen));
 };
 
 const databaseRecordsStore = {};
@@ -180,66 +220,36 @@ function populateTable(tableName) {
     const columns = columnsMap[tableName];
     if (!columns) { visiting.delete(tableName); return; }
 
-    // ALGORITHME DE RÉCURSION INTÉGRAL SANS CHAÎNE EN DUR
     if (childToParent[tableName]) {
         for (const colName in childToParent[tableName]) {
             const parentTable = childToParent[tableName][colName].parentTable;
-            if (!databaseRecordsStore[parentTable]) {
-                populateTable(parentTable);
-            }
+            if (!databaseRecordsStore[parentTable]) populateTable(parentTable);
         }
     }
 
-    const rowValues = [];
-    const generatedRowObject = {};
-
-    for (const col of columns) {
-        const t = col.type.toUpperCase();
-        const name = col.name;
-        const isUuid = t.includes("UUID") || t.includes("USER-DEFINED");
-
-        let val;
-
-        if (childToParent[tableName] && childToParent[tableName][name]) {
-            const link = childToParent[tableName][name];
-            const parentRows = databaseRecordsStore[link.parentTable];
-            const parentVal = parentRows && parentRows.length > 0 ? parentRows[0][link.parentCol] : undefined;
-            if (parentVal !== undefined && parentVal !== null) {
-                val = parentVal;
-            } else {
-                // PK parente auto-générée (serial/identity) : on cible la ligne réellement insérée
-                val = `(SELECT ${link.parentCol} FROM ${schemaName}.${link.parentTable} ORDER BY ${link.parentCol} DESC LIMIT 1)`;
-            }
-        } else if (allowedValues[tableName] && allowedValues[tableName][name]) {
-            const opts = allowedValues[tableName][name];
-            const picked = opts[Math.floor(Math.random() * opts.length)].replace(/\x27/g, "\x27\x27");
-            val = `\x27${picked}\x27`;
-        } else {
-            if (name.toLowerCase() === "id" || isUuid) val = generateUUID();
-            else if (t.includes("JSON")) val = generateJson();
-            else if (t.includes("INT") || t.includes("NUMERIC")) val = generateInt();
-            else if (t.includes("FLOAT") || t.includes("DOUBLE") || t.includes("DECIMAL")) val = "12.50";
-            else if (t.includes("BOOL")) val = generateBool();
-            else if (t.includes("TIME") || t.includes("DATE")) val = generateDate();
-            else val = generateString((effLen[tableName] && effLen[tableName][name] != null) ? effLen[tableName][name] : col.maxLen);
+    const colList = columns.map(c => c.name).join(", ");
+    const rows = [];
+    for (let i = 0; i < rowCount; i++) {
+        const rowValues = [];
+        const generatedRowObject = {};
+        for (const col of columns) {
+            const val = generateValue(tableName, col);
+            rowValues.push(val);
+            generatedRowObject[col.name] = val;
         }
-
-        rowValues.push(val);
-        generatedRowObject[name] = val;
+        rows.push(generatedRowObject);
+        insertStatements.push(`INSERT INTO ${schemaName}.${tableName} (${colList}) VALUES (${rowValues.join(", ")}) ON CONFLICT DO NOTHING;`);
     }
 
-    databaseRecordsStore[tableName] = [generatedRowObject];
+    databaseRecordsStore[tableName] = rows;
     visiting.delete(tableName);
-    insertStatements.push(`INSERT INTO ${schemaName}.${tableName} (${columns.map(c => c.name).join(", ")}) VALUES (${rowValues.join(", ")});`);
 }
 
-for (const tableName of tablesList) {
-    populateTable(tableName);
-}
+for (const tableName of tablesList) populateTable(tableName);
 
-let finalSql = `-- 🧪 Mapped Dataset\n\\set ON_ERROR_STOP on\n\nBEGIN;\n\n` + insertStatements.join("\n") + `\n\nCOMMIT;\n`;
+const finalSql = `-- Mapped Dataset\n\\set ON_ERROR_STOP on\n\nBEGIN;\n\n` + insertStatements.join("\n") + `\n\nCOMMIT;\n`;
 fs.writeFileSync(outputFile, finalSql, "utf-8");
-' "$COLUMNS_META_FILE" "$FK_MAP_FILE" "$OUTPUT_FILE" "$DB_SCHEMA" "$CHECK_MAP_FILE"
+' "$COLUMNS_META_FILE" "$FK_MAP_FILE" "$OUTPUT_FILE" "$DB_SCHEMA" "$CHECK_MAP_FILE" "$ROWS"
 
-rm -f "$COLUMNS_META_FILE" "$FK_MAP_FILE" "$CHECK_MAP_FILE"
-echo "🎉 Executable SQL script generated inside: $OUTPUT_FILE"
+cleanup_metadata
+echo "Success! Executable SQL script generated at: $OUTPUT_FILE"
