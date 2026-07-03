@@ -1,0 +1,46 @@
+# ==============================================================================
+#  an-tool-ny - LOCAL ENVIRONMENT TEMPLATE: CACHE ONLY
+#  Stack: Valkey (Redis alternative) + RedisInsight UI
+# ==============================================================================
+
+version: '3.8'
+
+services:
+
+  # --- CACHE / NO-SQL: Valkey (High-performance Redis Fork) ---
+  valkey:
+    container_name: myapp_valkey
+    image: valkey/valkey:7.2
+    ports:
+      - "6379:6379"
+    networks:
+      - backend_net
+    restart: unless-stopped
+    volumes:
+      - valkey_data:/data
+
+  # --- UI / MANAGEMENT: RedisInsight for Valkey/Redis ---
+  redisinsight:
+    container_name: myapp_redisinsight
+    image: redislabs/redisinsight:2.70
+    ports:
+      - "8001:5540"
+    networks:
+      - backend_net
+    volumes:
+      - redisinsight_data:/db
+    environment:
+      RI_REDIS_HOST_SMART_SUPPLY: valkey
+      RI_REDIS_PORT_SMART_SUPPLY: 6379
+      RI_REDIS_ALIAS_SMART_SUPPLY: local-valkey-instance
+    restart: unless-stopped
+    depends_on:
+      - valkey
+
+networks:
+  backend_net:
+    driver: bridge
+
+volumes:
+  valkey_data:
+  redisinsight_data:

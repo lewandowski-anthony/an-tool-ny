@@ -1,0 +1,26 @@
+# ==============================================================================
+#  an-tool-ny - EXTENSION: KAFKA-UI (Auto-includes core Kafka)
+# ==============================================================================
+
+version: '3.8'
+
+include:
+  - docker-compose-kafka.yaml
+
+services:
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: myapp_kafka_ui
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local-kafka-cluster
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: myapp_kafka:9094
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://myapp_schema_registry:8085
+      DYNAMIC_CONFIG_ENABLED: 'true'
+    depends_on:
+      - kafka
+      - schema-registry
+    networks:
+      - kafka_net
