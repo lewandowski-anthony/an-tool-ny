@@ -1,0 +1,34 @@
+# ==============================================================================
+#  an-tool-ny - ACTIVEMQ ARTEMIS INFRASTRUCTURE & AUTO-INIT (Base File)
+# ==============================================================================
+
+version: '3.8'
+
+services:
+
+  # --- BROKER: ActiveMQ Artemis ---
+  activemq:
+    image: apache/activemq-artemis:2.32.0
+    container_name: myapp_activemq
+    ports:
+      - "8161:8161"
+      - "61616:61616"
+      - "5672:5672"
+    environment:
+      AMQ_USER: "admin"
+      AMQ_PASSWORD: "admin"
+      ARTEMIS_USER: ${ACTIVEMQ_USER:-admin}
+      ARTEMIS_PASSWORD: ${ACTIVEMQ_PASSWORD:-admin}
+    volumes:
+      - activemq_data:/var/lib/artemis/data
+      - ./broker-config.xml:/var/lib/artemis-instance/etc-override/broker.xml
+    networks:
+      - activemq_net
+    restart: unless-stopped
+
+networks:
+  activemq_net:
+    driver: bridge
+
+volumes:
+  activemq_data:
