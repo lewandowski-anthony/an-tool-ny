@@ -2,11 +2,12 @@ FROM confluentinc/cp-kafka-connect-base:7.2.2
 
 ENV PROXYCHAIN_CONF=/etc/proxychains/proxychains.conf
 
-LABEL org.opencontainers.image.title="Smart Supply - JDBC Kafka connect"
-LABEL org.opencontainers.image.description="Kafka connect image with JDBC plugin and proxychains"
-LABEL org.opencontainers.image.source="https://github.com/dktunited/smart-supply-back/tree/main/flows/jdbc-kafka-connect"
-LABEL org.opencontainers.image.vendor="DECATHLON"
-LABEL org.opencontainers.image.licenses="Internal"
+LABEL org.opencontainers.image.title="JDBC Kafka Connect"
+LABEL org.opencontainers.image.description="Kafka Connect image with JDBC plugin and Proxychains"
+LABEL org.opencontainers.image.authors="ANTHONY-LEWANDOWSKI"
+LABEL org.opencontainers.image.source=""
+LABEL org.opencontainers.image.vendor=""
+LABEL org.opencontainers.image.licenses=""
 
 USER root
 
