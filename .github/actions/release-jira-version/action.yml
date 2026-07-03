@@ -1,0 +1,65 @@
+name: 'Release Jira Version'
+description: 'Transitions versions to Released state for a specific module'
+
+inputs:
+  version:
+    description: 'Full version string'
+    required: true
+  project_key:
+    description: 'Jira project key'
+    required: true
+    default: 'SMART'
+  jira_base_url:
+    description: 'Jira instance URL'
+    required: true
+  jira_user_email:
+    description: 'Jira service account email'
+    required: true
+  jira_api_token:
+    description: 'Jira API Token'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Find and Release Jira Versions
+      shell: bash
+      env:
+        VERSION: ${{ inputs.version }}
+        PROJECT: ${{ inputs.project_key }}
+        BASE_URL: ${{ inputs.jira_base_url }}
+        AUTH_HEADER: ${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}
+      run: |
+        set -euo pipefail
+
+        AUTH=$(echo -n "$AUTH_HEADER" | base64 -w 0)
+        TARGET_CORE=$(echo "$VERSION" | cut -d'-' -f1)
+        TARGET_MOD=$(echo "$VERSION" | cut -d'-' -f2-)
+        CURRENT_DATE=$(date +%Y-%m-%d)
+        
+        RESPONSE=$(curl -fsS -X GET "$BASE_URL/rest/api/3/project/$PROJECT/versions" \
+          -H "Authorization: Basic $AUTH" -H "Content-Type: application/json")
+
+        version_ge() {
+            [ "$1" = "$(echo -e "$1\n$2" | sort -V | tail -n1)" ]
+        }
+
+        echo "$RESPONSE" | jq -c '.[] | select(.released == false)' | while read -r version_obj; do
+            NAME=$(echo "$version_obj" | jq -r '.name')
+            ID=$(echo "$version_obj" | jq -r '.id')
+        
+            CURRENT_CORE=$(echo "$NAME" | cut -d'-' -f1)
+            CURRENT_MOD=$(echo "$NAME" | cut -d'-' -f2-)
+        
+            if [[ "$CURRENT_MOD" == "$TARGET_MOD" ]]; then
+                if version_ge "$TARGET_CORE" "$CURRENT_CORE"; then
+                    echo "🚀 Releasing module-specific version: $NAME"
+                    PAYLOAD=$(jq -n --arg date "$CURRENT_DATE" '{released: true, releaseDate: $date}')
+        
+                    curl -fsS -X PUT "$BASE_URL/rest/api/3/version/$ID" \
+                      -H "Authorization: Basic $AUTH" \
+                      -H "Content-Type: application/json" \
+                      -d "$PAYLOAD"
+                fi
+            fi
+        done

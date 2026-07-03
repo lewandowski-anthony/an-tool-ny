@@ -1,0 +1,33 @@
+name: 'Google Chat Notification'
+description: 'Sends a text message to a Google Chat space via an incoming webhook'
+
+inputs:
+  webhook_url:
+    description: 'The Google Chat incoming webhook URL (store this in GitHub Secrets!)'
+    required: true
+  message:
+    description: 'The message body. Supports Google Chat format (*bold*, _italic_, `code`, \n for newlines)'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Post to Google Chat
+      shell: bash
+      env:
+        WEBHOOK_URL: ${{ inputs.webhook_url }}
+        MESSAGE: ${{ inputs.message }}
+      run: |
+        set -euo pipefail
+
+        if [[ -z "$WEBHOOK_URL" ]]; then
+          echo "::error:: The webhook_url input cannot be empty."
+          exit 1
+        fi
+
+        PAYLOAD=$(jq -n --arg text "$MESSAGE" '{text: $text}')
+
+        # Envoi de la requête vers Google Chat
+        curl -fsS -X POST "$WEBHOOK_URL" \
+          -H "Content-Type: application/json; charset=UTF-8" \
+          -d "$PAYLOAD"

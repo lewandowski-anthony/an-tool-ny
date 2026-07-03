@@ -1,0 +1,94 @@
+name: "Semver by commit message with suffix"
+description: "Find latest tag by suffix and increment semver from commit message"
+
+inputs:
+  access-token:
+    description: "Token used to push tags"
+    required: true
+  version-prefix:
+    description: "Tag prefix"
+    required: false
+    default: "v"
+  suffix:
+    description: "Tag suffix without dash"
+    required: true
+  push-tag:
+    description: "Push created tag to origin"
+    required: false
+    default: "false"
+
+outputs:
+  previous-version:
+    description: "Previous semantic version (without prefix/suffix)"
+    value: ${{ steps.bump.outputs.previous-version }}
+  new-version:
+    description: "New semantic version (without prefix/suffix)"
+    value: ${{ steps.bump.outputs.new-version }}
+  previous-tag:
+    description: "Previous full tag"
+    value: ${{ steps.bump.outputs.previous-tag }}
+  new-tag:
+    description: "New full tag"
+    value: ${{ steps.bump.outputs.new-tag }}
+  bump-type:
+    description: "Detected bump type: major|minor|patch"
+    value: ${{ steps.bump.outputs.bump-type }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Compute next semantic version
+      id: bump
+      shell: bash
+      env:
+        PREFIX: ${{ inputs.version-prefix }}
+        SUFFIX: ${{ inputs.suffix }}
+      run: |
+        set -euo pipefail
+
+        if [[ -z "$SUFFIX" ]]; then
+          echo "ERROR: input 'suffix' is mandatory."
+          exit 1
+        fi
+
+        git fetch --tags --force >/dev/null 2>&1 || true
+        
+        PATTERN="^${PREFIX}[0-9]+\.[0-9]+\.[0-9]+-${SUFFIX}$"
+        LIST_GLOB="${PREFIX}*-${SUFFIX}"
+        LATEST_TAG="$(git tag --list "$LIST_GLOB" | grep -E "$PATTERN" | sort -V | tail -n 1 || true)"
+        
+        if [[ -n "$LATEST_TAG" ]]; then
+          CORE="${LATEST_TAG#"$PREFIX"}"
+          CORE="${CORE%-"$SUFFIX"}"
+        else
+          CORE="0.0.0"
+        fi
+
+        IFS='.' read -r MAJOR MINOR PATCH <<< "$CORE"
+        
+        COMMIT_MSG="$(git log -1 --pretty=%B | tr '[:upper:]' '[:lower:]')"
+        COMMIT_HEADER=$(echo "$COMMIT_MSG" | head -n 1 | xargs)
+        
+        BUMP="patch"
+        if echo "$COMMIT_HEADER" | grep -Eq '^[a-z]+([(][^)]+[)])?!:' || echo "$COMMIT_MSG" | grep -q "breaking change:"; then
+          BUMP="major"
+        elif echo "$COMMIT_HEADER" | grep -Eq '^feat([(][^)]+[)])?:'; then
+          BUMP="minor"
+        fi
+
+        case "$BUMP" in
+          major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+          minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+          patch) PATCH=$((PATCH + 1)) ;;
+        esac
+
+        NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+        NEW_TAG="${PREFIX}${NEW_VERSION}-${SUFFIX}"
+
+        {
+          echo "previous-version=$CORE"
+          echo "new-version=$NEW_VERSION"
+          echo "previous-tag=$LATEST_TAG"
+          echo "new-tag=$NEW_TAG"
+          echo "bump-type=$BUMP"
+        } >> "$GITHUB_OUTPUT"
