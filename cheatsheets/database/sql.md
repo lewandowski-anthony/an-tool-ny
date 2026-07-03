@@ -1,10 +1,10 @@
-# 🗃️ SQL Cheatsheet (Standard / Cross-DB)
+# SQL Cheatsheet (Standard / Cross-DB)
 
-> A concise collection of standard SQL commands, idioms, and best practices that work across most relational databases (PostgreSQL, MySQL, Oracle, SQL Server). Engine-specific tricks live in their own cheatsheets.
+> A practical reference for standard SQL commands, patterns, and best practices that work across most relational databases, including PostgreSQL, MySQL, Oracle, and SQL Server. Engine-specific details live in their own cheatsheets.
 
 ---
 
-## 🔍 Querying (SELECT)
+## Querying (SELECT)
 
 ```sql
 SELECT col1, col2 FROM users;
@@ -27,7 +27,7 @@ WHERE created_at > CURRENT_DATE - INTERVAL '7' DAY
 
 ---
 
-## 🔗 Joins
+## Joins
 
 ```sql
 SELECT o.id, u.name
@@ -43,11 +43,11 @@ LEFT JOIN address a ON a.user_id = u.id;      -- keep all orders/users
 -- CROSS  → cartesian product
 ```
 
-> 💡 Always qualify columns with table aliases in joins — clearer and avoids ambiguity.
+> **Tip:** Always qualify columns with table aliases in joins. It keeps queries clearer and avoids ambiguity.
 
 ---
 
-## 📊 Aggregation & Grouping
+## Aggregation & Grouping
 
 ```sql
 SELECT country, COUNT(*) AS total, AVG(age) AS avg_age
@@ -59,11 +59,11 @@ ORDER BY total DESC;
 
 Common aggregates: `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`.
 
-> 💡 `WHERE` filters **before** grouping; `HAVING` filters **after**.
+> **Tip:** `WHERE` filters **before** grouping; `HAVING` filters **after**.
 
 ---
 
-## 🪟 Window Functions
+## Window Functions
 
 ```sql
 SELECT
@@ -78,7 +78,7 @@ Useful window functions: `ROW_NUMBER`, `RANK`, `DENSE_RANK`, `LAG`, `LEAD`, `SUM
 
 ---
 
-## 🧩 Subqueries & CTEs
+## Subqueries & CTEs
 
 ```sql
 -- Common Table Expression (readable, composable)
@@ -92,11 +92,11 @@ SELECT * FROM users
 WHERE id IN (SELECT user_id FROM orders WHERE total > 100);
 ```
 
-> 💡 Prefer CTEs over deeply nested subqueries for readability. Recursive CTEs (`WITH RECURSIVE`) handle hierarchies/graphs.
+> **Tip:** Prefer CTEs over deeply nested subqueries when they make the query easier to read. Recursive CTEs (`WITH RECURSIVE`) handle hierarchies and graphs.
 
 ---
 
-## ✏️ Data Modification (DML)
+## Data Modification (DML)
 
 ```sql
 INSERT INTO users (name, email) VALUES ('Ana', 'ana@x.com');
@@ -109,11 +109,11 @@ DELETE FROM users WHERE id = 42;
 -- Upsert (syntax varies by engine — see per-DB cheatsheets)
 ```
 
-> ⚠️ **Always run `UPDATE`/`DELETE` with a `WHERE`.** Test with a `SELECT` using the same filter first.
+> **Warning:** **Always run `UPDATE`/`DELETE` with a `WHERE`.** Test with a `SELECT` using the same filter first.
 
 ---
 
-## 🏗️ Schema (DDL)
+## Schema (DDL)
 
 ```sql
 CREATE TABLE users (
@@ -137,7 +137,7 @@ TRUNCATE TABLE users;         -- fast delete-all (no per-row triggers/rollback l
 
 ---
 
-## ⚡ Indexes
+## Indexes
 
 ```sql
 CREATE INDEX idx_users_email ON users(email);
@@ -152,7 +152,7 @@ DROP INDEX idx_users_email;
 
 ---
 
-## 🔒 Transactions
+## Transactions
 
 ```sql
 BEGIN;                         -- or START TRANSACTION
@@ -166,7 +166,7 @@ Isolation levels: `READ UNCOMMITTED` → `READ COMMITTED` → `REPEATABLE READ` 
 
 ---
 
-## 🧠 Best Practices
+## Best Practices
 
 * **Never `SELECT *`** in production code — name columns (faster, stable, self-documenting).
 * Use **parameterized queries** to prevent SQL injection — never string-concatenate user input.
@@ -179,7 +179,7 @@ Isolation levels: `READ UNCOMMITTED` → `READ COMMITTED` → `REPEATABLE READ` 
 
 ---
 
-## ⚠️ Common Gotchas
+## Common Gotchas
 
 * `NULL` comparisons need `IS NULL` / `IS NOT NULL`, not `= NULL`.
 * `COUNT(col)` ignores NULLs; `COUNT(*)` counts all rows.

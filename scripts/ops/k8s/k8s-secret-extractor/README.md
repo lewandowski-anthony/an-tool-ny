@@ -1,24 +1,24 @@
 # Kubernetes Secret / Env Extractor (`k8s-secret-extractor.sh`)
 
-This Bash utility **reconstructs the full runtime environment** (`.env`) of a Kubernetes deployment. It interactively lets you pick a deployment, inspects one of its pods, and resolves every environment variable — inline values, `envFrom` secrets/configmaps, and individually mapped `valueFrom` references — decoding secrets along the way.
+This Bash utility reconstructs the full runtime environment (`.env`) for a Kubernetes deployment. You pick a deployment, it inspects one of its pods, then resolves each environment variable: inline values, `envFrom` secrets/configmaps, and individually mapped `valueFrom` references, decoding secrets along the way.
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
-* **Interactive Selection**: Lists all deployments in the namespace and prompts you to choose one.
-* **Smart Pod Resolution**: Finds a backing pod via `app.kubernetes.io/name`, then `app` labels, then a name-prefix fallback.
-* **Complete Env Reconstruction**, grouped by source:
+* **Interactive selection**: Lists deployments in the namespace and prompts you to choose one.
+* **Smart pod resolution**: Finds a backing pod via `app.kubernetes.io/name`, then `app` labels, then a name-prefix fallback.
+* **Complete env reconstruction**, grouped by source:
   * Hardcoded `env` values.
   * Bulk `envFrom` **Secrets** (base64-decoded).
   * Bulk `envFrom` **ConfigMaps**.
   * Individually mapped `valueFrom` **secretKeyRef** (decoded).
   * Individually mapped `valueFrom` **configMapKeyRef**.
-* **Ready-to-Use Output**: Writes a clean `.env` file named after the deployment, namespace, and context.
+* **Ready-to-use output**: Writes a clean `.env` file named after the deployment, namespace, and context.
 
 ---
 
-## 🛠️ Usage Guide
+## Usage Guide
 
 ### 1. Command Options
 
@@ -39,7 +39,7 @@ You will then be prompted to select the target deployment from a list.
 
 ---
 
-## 🔍 Output
+## Output
 
 The reconstructed environment file is stored under the `results/` directory:
 
@@ -49,7 +49,7 @@ Each section is annotated with a comment header indicating the source of the var
 
 ---
 
-## 📋 Requirements
+## Requirements
 
 * **`kubectl`** configured with access to the target cluster.
 * **`jq`** for parsing pod, secret, and configmap JSON.
@@ -58,9 +58,9 @@ Each section is annotated with a comment header indicating the source of the var
 
 ---
 
-## ⚠️ Notes
+## Notes
 
-* **Security**: The generated `.env` contains **decoded secret values in clear text**. Treat it as sensitive — do not commit it to version control.
+* **Security**: The generated `.env` contains **decoded secret values in clear text**. Treat it as sensitive and do not commit it to version control.
 * If no environment variables are found, the empty output file is removed automatically.
 * The script inspects the **first container** of the resolved pod.
 * Passing `--context` switches your active `kubectl` context for the session.

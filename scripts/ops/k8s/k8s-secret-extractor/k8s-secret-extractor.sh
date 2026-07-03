@@ -30,19 +30,19 @@ CURRENT_CONTEXT=$(kubectl config current-context)
 CURRENT_NS=$( [ -n "$NAMESPACE" ] && echo "$NAMESPACE" || kubectl config view --minify --output 'jsonpath={..namespace}' 2>/dev/null )
 CURRENT_NS=${CURRENT_NS:-default}
 
-echo -e "${BLUE}${BOLD}🔍 Fetching available deployments in namespace: ${YELLOW}$CURRENT_NS${NC}\n"
+echo -e "${BLUE}${BOLD}Fetching available deployments in namespace: ${YELLOW}$CURRENT_NS${NC}\n"
 
 DEPLOYMENTS=($(kubectl get deployments -n "$CURRENT_NS" -o jsonpath='{.items[*].metadata.name}' 2>/dev/null))
 
 if [ ${#DEPLOYMENTS[@]} -eq 0 ]; then
-    echo -e "${RED}❌ No deployments found in namespace $CURRENT_NS.${NC}"
+    echo -e "${RED}No deployments found in namespace $CURRENT_NS.${NC}"
     exit 1
 fi
 
 echo -e "${BOLD}Select the deployment you want to extract the .env from:${NC}"
 select TARGET_DEPLOYMENT in "${DEPLOYMENTS[@]}"; do
     if [ -n "$TARGET_DEPLOYMENT" ]; then
-        echo -e "\n🎯 Selected Deployment: ${GREEN}${BOLD}$TARGET_DEPLOYMENT${NC}\n"
+        echo -e "\nSelected Deployment: ${GREEN}${BOLD}$TARGET_DEPLOYMENT${NC}\n"
         break
     else
         echo -e "${RED}Invalid selection. Please choose a valid number.${NC}"
@@ -56,18 +56,18 @@ SAFE_CONTEXT=$(echo "$CURRENT_CONTEXT" | sed 's/[^a-zA-Z0-9_-]/_/g')
 ENV_FILE="${OUTPUT_DIR}/${TARGET_DEPLOYMENT}_${CURRENT_NS}_${SAFE_CONTEXT}.env"
 touch "$ENV_FILE"
 
-echo -e "${BLUE}${BOLD}🚀 Starting Environment Extractor (.env)${NC}"
+echo -e "${BLUE}${BOLD}Starting Environment Extractor (.env)${NC}"
 
 POD=$(kubectl get pods -n "$CURRENT_NS" -l "app.kubernetes.io/name=$TARGET_DEPLOYMENT" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || \
       kubectl get pods -n "$CURRENT_NS" -l "app=$TARGET_DEPLOYMENT" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || \
       kubectl get pods -n "$CURRENT_NS" -o json | jq -r --arg deploy "$TARGET_DEPLOYMENT" '.items[] | select(.metadata.name | startswith($deploy)) | .metadata.name' | head -n 1)
 
 if [ -z "$POD" ]; then
-    echo -e "${RED}❌ Error: No active pods found for deployment $TARGET_DEPLOYMENT.${NC}"
+    echo -e "${RED}Error: No active pods found for deployment $TARGET_DEPLOYMENT.${NC}"
     exit 1
 fi
 
-echo -e "${BLUE}📦 Extracting full environment from pod:${NC} ${BOLD}$POD${NC}"
+echo -e "${BLUE}Extracting full environment from pod:${NC} ${BOLD}$POD${NC}"
 
 POD_JSON=$(kubectl get pod "$POD" -n "$CURRENT_NS" -o json 2>/dev/null)
 
@@ -120,11 +120,11 @@ done
 
 if [ -s "$ENV_FILE" ]; then
     sed -i.bak '/^# ===/N;/^\n$/D' "$ENV_FILE" 2>/dev/null && rm "${ENV_FILE}.bak" 2>/dev/null
-    echo -e "   └── ${GREEN}✔ Saved to:${NC} ${ENV_FILE}"
+    echo -e "   └── ${GREEN}Saved to:${NC} ${ENV_FILE}"
 else
     rm "$ENV_FILE"
     echo -e "   └── ${YELLOW}No environment variables found.${NC}"
 fi
 echo ""
 
-echo -e "${GREEN}${BOLD}🎉 Done! Output file:${NC} $ENV_FILE"
+echo -e "${GREEN}${BOLD}Done! Output file:${NC} $ENV_FILE"

@@ -1,10 +1,10 @@
-# 🔴 Oracle Database Cheatsheet
+# Oracle Database Cheatsheet
 
-> A concise collection of Oracle-specific SQL, PL/SQL, and SQL*Plus tips. For standard SQL (joins, window functions), see `sql.md`.
+> Practical Oracle notes for SQL, PL/SQL, and SQL*Plus. For standard SQL topics like joins and window functions, see `sql.md`.
 
 ---
 
-## 💻 SQL*Plus / SQLcl
+## SQL*Plus / SQLcl
 
 ```bash
 sqlplus user/password@//host:1521/servicename
@@ -27,7 +27,7 @@ sql user/password@host:1521/service # SQLcl (modern CLI)
 
 ---
 
-## 🔑 Oracle-isms (things that differ)
+## Oracle-isms (things that differ)
 
 ```sql
 -- DUAL: the one-row dummy table
@@ -48,11 +48,11 @@ SELECT COALESCE(a, b, c) FROM t;             -- also supported
 SELECT first_name || ' ' || last_name FROM emp;   -- || or CONCAT()
 ```
 
-> ⚠️ In Oracle, an **empty string `''` IS treated as `NULL`** — a classic surprise.
+> **Warning:** In Oracle, an **empty string `''` IS treated as `NULL`** — a classic surprise.
 
 ---
 
-## 🆙 MERGE (Upsert)
+## MERGE (Upsert)
 
 ```sql
 MERGE INTO users u
@@ -64,7 +64,7 @@ WHEN NOT MATCHED THEN INSERT (id, email) VALUES (src.id, src.email);
 
 ---
 
-## 🔢 Sequences & Identity
+## Sequences & Identity
 
 ```sql
 CREATE SEQUENCE user_seq START WITH 1 INCREMENT BY 1;
@@ -80,7 +80,7 @@ CREATE TABLE users (
 
 ---
 
-## 📅 Dates
+## Dates
 
 ```sql
 SELECT SYSDATE, SYSTIMESTAMP FROM dual;
@@ -93,7 +93,7 @@ SELECT SYSDATE + INTERVAL '7' DAY FROM dual;
 
 ---
 
-## 🧩 PL/SQL Basics
+## PL/SQL Basics
 
 ```sql
 -- Anonymous block
@@ -127,7 +127,7 @@ END;
 
 ---
 
-## ⚡ Performance & Introspection
+## Performance & Introspection
 
 ```sql
 EXPLAIN PLAN FOR SELECT ...;
@@ -147,7 +147,7 @@ SELECT /*+ INDEX(u idx_users_email) */ * FROM users u WHERE email = 'a@x.com';
 
 ---
 
-## ⚠️ Common Gotchas
+## Common Gotchas
 
 * `''` = `NULL` (empty string is null) — unique to Oracle among major DBs.
 * Identifiers are **UPPERCASE** by default; quoting makes them case-sensitive.

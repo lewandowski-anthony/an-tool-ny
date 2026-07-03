@@ -1,11 +1,11 @@
-# ☸️ Kubernetes Cheatsheet
+# Kubernetes Cheatsheet
 
-> A practical collection of `kubectl` commands, tips, and tricks for everyday cluster work — from inspecting pods to debugging networking and cleaning up messes. Commands are cross-platform (macOS,
-> Windows, Linux); OS-specific notes are flagged where relevant.
+> A practical `kubectl` reference for everyday cluster work — inspecting pods, debugging networking, cleaning up messes, and more. Commands are cross-platform (macOS,
+> Windows, Linux), with OS-specific notes called out where useful.
 
 ---
 
-## ⚙️ Setup & Context
+## Setup & Context
 
 ```bash
 kubectl config get-contexts                 # list contexts
@@ -17,11 +17,11 @@ kubectl version --short                      # client + server versions
 kubectl api-resources                        # list all resource types (+ short names)
 ```
 
-> 💡 **Alias `k=kubectl`** and enable completion (see Tips). Also try [`kubectx`/`kubens`](https://github.com/ahmetb/kubectx) to switch context/namespace fast.
+> **Tip:** **Alias `k=kubectl`** and enable completion (see Tips). [`kubectx`/`kubens`](https://github.com/ahmetb/kubectx) also make context and namespace switching faster.
 
 ---
 
-## 🔍 Inspecting Resources
+## Inspecting Resources
 
 ```bash
 kubectl get pods                            # pods in current namespace
@@ -44,11 +44,11 @@ kubectl get pods -o jsonpath='{.items[*].metadata.name}'
 kubectl get pods --sort-by=.status.startTime
 ```
 
-> 💡 See this repo's `scripts/ops/k8s/` for ready-made tools (namespace audit, image tags, HTTPRoute map, pod cleaner, Kafka test, smart restart, fast-exec, port-forward, secret extractor).
+> **Tip:** This repo's `scripts/ops/k8s/` has ready-made tools for namespace audits, image tags, HTTPRoute maps, pod cleanup, Kafka tests, smart restarts, fast exec, port forwarding, and secret extraction.
 
 ---
 
-## 📜 Logs & Exec
+## Logs & Exec
 
 ```bash
 kubectl logs <pod>                          # logs
@@ -61,11 +61,11 @@ kubectl exec <pod> -- env                   # run a one-off command
 kubectl attach -it <pod>                    # attach to main process
 ```
 
-> 💡 `kubectl logs --since=1h` or `--since-time=<RFC3339>` scopes logs by time. Add `--timestamps` to prefix each line.
+> **Tip:** `kubectl logs --since=1h` or `--since-time=<RFC3339>` scopes logs by time. Add `--timestamps` to prefix each line.
 
 ---
 
-## 🚀 Creating & Applying
+## Creating & Applying
 
 ```bash
 kubectl apply -f manifest.yaml              # declarative create/update
@@ -77,11 +77,11 @@ kubectl run tmp --rm -it --image=busybox -- sh   # ephemeral throwaway pod
 kubectl diff -f manifest.yaml               # preview changes before apply
 ```
 
-> 💡 Always prefer `apply` (declarative) over `create` in real workflows — it's idempotent and versionable.
+> **Tip:** Prefer `apply` (declarative) over `create` in real workflows because it's idempotent and versionable.
 
 ---
 
-## ✏️ Editing & Scaling
+## Editing & Scaling
 
 ```bash
 kubectl edit deployment <name>              # live-edit in $EDITOR
@@ -97,7 +97,7 @@ kubectl annotate / kubectl label ...        # add metadata
 
 ---
 
-## 🌐 Networking & Access
+## Networking & Access
 
 ```bash
 kubectl get svc                             # services
@@ -120,11 +120,11 @@ kubectl run nettest --rm -it --image=busybox -- \
   nc -zv -w 5 my-host 5432
 ```
 
-> 💡 DNS inside the cluster: `<service>.<namespace>.svc.cluster.local`. Test with `nslookup` from a busybox pod.
+> **Tip:** DNS inside the cluster uses `<service>.<namespace>.svc.cluster.local`. Test it with `nslookup` from a busybox pod.
 
 ---
 
-## 🔐 Secrets & ConfigMaps
+## Secrets & ConfigMaps
 
 ```bash
 kubectl get secret <name> -o jsonpath='{.data.PASSWORD}' | base64 -d   # decode one key
@@ -135,11 +135,11 @@ kubectl get configmap <name> -o yaml
 kubectl create configmap app --from-file=config.properties
 ```
 
-> ⚠️ Secret `data` values are **base64-encoded, not encrypted**. Anyone with `get secret` RBAC can read them. Handle decoded output with care and never commit it.
+> **Warning:** Secret `data` values are **base64-encoded, not encrypted**. Anyone with `get secret` RBAC can read them. Handle decoded output with care and never commit it.
 
 ---
 
-## 📊 Resource Usage & Health
+## Resource Usage & Health
 
 ```bash
 kubectl top nodes                           # node CPU/memory (needs metrics-server)
@@ -152,7 +152,7 @@ kubectl get pods -o wide | grep -v Running  # quick anomaly scan
 
 ---
 
-## 🧹 Cleaning Up
+## Cleaning Up
 
 ```bash
 kubectl delete pod <pod>                              # delete a pod
@@ -162,11 +162,11 @@ kubectl delete all -l app=old-app                     # everything with a label
 kubectl get pods | grep Evicted | awk '{print $1}' | xargs kubectl delete pod
 ```
 
-> 💡 This repo's `scripts/ops/k8s/k8s-pod-cleaner/` purges `Evicted`/`Completed`/`Error`/`OOMKilled` pods for you.
+> **Tip:** This repo's `scripts/ops/k8s/k8s-pod-cleaner/` can purge `Evicted`, `Completed`, `Error`, and `OOMKilled` pods for you.
 
 ---
 
-## 🐞 Debugging Workflow
+## Debugging Workflow
 
 | Symptom               | Investigate with                                    |
 |-----------------------|-----------------------------------------------------|
@@ -188,7 +188,7 @@ kubectl debug node/<node> -it --image=busybox
 
 ---
 
-## 🏷️ Common Short Names
+## Common Short Names
 
 | Short | Full       | Short    | Full                   |
 |-------|------------|----------|------------------------|
@@ -203,7 +203,7 @@ Run `kubectl api-resources` for the complete list.
 
 ---
 
-## 💡 Tips & Tricks
+## Tips & Tricks
 
 * **Alias + completion** — huge quality-of-life boost:
   ```bash
@@ -225,7 +225,7 @@ Run `kubectl api-resources` for the complete list.
 
 ---
 
-## ⚠️ Cross-Platform Notes
+## Cross-Platform Notes
 
 * **Install kubectl**:
     * macOS: `brew install kubectl`
@@ -238,7 +238,7 @@ Run `kubectl api-resources` for the complete list.
 
 ---
 
-## 🆘 Quick Reference: "How Do I…?"
+## Quick Reference: "How Do I…?"
 
 | I want to…                         | Do this                                                         |
 |------------------------------------|-----------------------------------------------------------------|

@@ -1,19 +1,19 @@
 # Kubernetes Fast Exec (`k8s-fast-exec.sh`)
 
-This Bash utility gives you an **instant interactive shell** inside a Kubernetes pod. Either pick a running pod from an interactive menu or target one directly by name/regex, and the script opens a `bash` session (falling back to `sh` when `bash` is unavailable).
+This Bash utility opens an interactive shell in a Kubernetes pod with minimal setup. You can choose a running pod from a menu or pass a pod name or regex directly, and the script starts `bash` with a fallback to `sh` when `bash` is not available.
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
 * **Interactive Selection**: Lists running pods in the namespace and prompts you to choose one.
-* **Direct Targeting**: Skip the menu by passing a pod name or regex; the first match is used.
-* **Smart Shell Detection**: Opens `bash` when present, otherwise gracefully falls back to `sh`.
-* **Context Aware**: Optionally switches `kubectl` context and prints the active context/namespace before connecting.
+* **Direct Targeting**: Skips the menu when you pass a pod name or regex; the first match is used.
+* **Smart Shell Detection**: Opens `bash` when present and falls back to `sh` when needed.
+* **Context Aware**: Optionally switches `kubectl` context and prints the active context and namespace before connecting.
 
 ---
 
-## 🛠️ Usage Guide
+## Usage Guide
 
 ### 1. Command Options
 
@@ -36,7 +36,7 @@ This Bash utility gives you an **instant interactive shell** inside a Kubernetes
 
 ---
 
-## 🔍 Behaviour
+## Behaviour
 
 1. Optionally switches to the provided `kubectl` context.
 2. Resolves the namespace (flag → current context → `default`).
@@ -46,14 +46,14 @@ This Bash utility gives you an **instant interactive shell** inside a Kubernetes
 
 ---
 
-## 📋 Requirements
+## Requirements
 
 * **`kubectl`** configured with access to the target cluster.
 * Permission to `exec` into pods in the namespace.
 
 ---
 
-## ⚠️ Notes
+## Notes
 
 * The interactive menu only lists pods in the `Running` phase; direct `--pod` matching considers all pods.
 * When a regex matches multiple pods, only the **first** match is used.

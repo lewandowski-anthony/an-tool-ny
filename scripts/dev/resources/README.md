@@ -1,10 +1,10 @@
 # Universal Resource Analyzer (`app-ressources-analyze.sh`)
 
-This Bash utility is a **stack-agnostic** resource-consumption analyzer for applications running in **Kubernetes**. It resolves one or many pods from a name or regex, auto-detects each pod's technology stack, and produces a consolidated report — automatically switching to **JVM-specific diagnostics** for Java workloads or **log/traffic analysis** for everything else (Node, Nginx, Python, etc.).
+This Bash utility analyzes resource usage for applications running in **Kubernetes**. It can resolve one or many pods from a name or regex, detect each pod's technology stack, and write a consolidated report. For Java workloads it adds **JVM-specific diagnostics**; for other stacks such as Node, Nginx, or Python, it focuses on **log/traffic analysis**.
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
 * **Multi-Pod Resolution**: Accepts an exact pod name or a **regex** and analyzes every matching pod in one run.
 * **Automatic Stack Detection**: Inspects the running processes to classify each pod as:
@@ -19,11 +19,11 @@ This Bash utility is a **stack-agnostic** resource-consumption analyzer for appl
 * **Capacity vs. Usage**: Compares CPU/memory **requests** and **limits** against live usage from `kubectl top`.
 * **Stability Insight**: Reports pod IP, restart count, and the last crash reason.
 * **Process Fallback**: Tries `ps aux` → `ps -ef` → `top` to remain compatible with distroless/slim images.
-* **Consolidated Report**: All pods are written to a single timestamped file under `results/`.
+* **Consolidated Report**: Writes all pod results to one timestamped file under `results/`.
 
 ---
 
-## 🛠️ Usage Guide
+## Usage Guide
 
 ### 1. Command Options
 
@@ -34,7 +34,7 @@ This Bash utility is a **stack-agnostic** resource-consumption analyzer for appl
 
 ### 2. Examples
 
-#### 🔹 Single pod
+#### Single pod
 ```bash
 ./app-ressources-analyze.sh \
 --k8s \
@@ -42,7 +42,7 @@ This Bash utility is a **stack-agnostic** resource-consumption analyzer for appl
 --namespace production
 ```
 
-#### 🔹 Multiple pods via regex
+#### Multiple pods via regex
 ```bash
 ./app-ressources-analyze.sh \
 --k8s \
@@ -53,7 +53,7 @@ This Bash utility is a **stack-agnostic** resource-consumption analyzer for appl
 
 ---
 
-## 🔍 Output
+## Output
 
 The consolidated diagnostic is printed to the console and stored under the `results/` directory:
 
@@ -70,7 +70,7 @@ For each matching pod the report contains:
 
 ---
 
-## 📋 Requirements
+## Requirements
 
 * **`kubectl`** configured with access to the target cluster.
 * **`jq`** for parsing pod JSON.
@@ -79,7 +79,7 @@ For each matching pod the report contains:
 
 ---
 
-## ⚠️ Notes
+## Notes
 
 * The script runs in Kubernetes mode only — it exits with an error if `--pod` or `--namespace` is missing.
 * `kubectl top` requires the **metrics-server** to be installed in the cluster.

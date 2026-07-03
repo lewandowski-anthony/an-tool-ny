@@ -1,11 +1,11 @@
-# 🌱 Git Cheatsheet
+# Git Cheatsheet
 
-> A practical collection of Git commands, tips, and tricks for everyday work — from basics to the "how do I undo this?" panic moments. Commands are cross-platform (macOS, Windows, Linux); OS-specific
-> notes are flagged where relevant.
+> A practical collection of Git commands, tips, and recovery tricks for everyday work, from the basics to those "how do I undo this?" moments. Commands are cross-platform (macOS, Windows, Linux); OS-specific
+> notes are called out where relevant.
 
 ---
 
-## ⚙️ Setup & Configuration
+## Setup & Configuration
 
 ```bash
 git config --global user.name "Anthony Lewandowski"
@@ -17,13 +17,13 @@ git config --global push.autoSetupRemote true    # auto-create upstream on first
 git config --list                                 # show all settings
 ```
 
-> 💡 **Line endings** — avoids the classic cross-OS diff noise:
+> **Tip:** **Line endings** — avoids the classic cross-OS diff noise:
 > * macOS / Linux: `git config --global core.autocrlf input`
 > * Windows: `git config --global core.autocrlf true`
 
 ---
 
-## 🚀 The Essentials
+## The Essentials
 
 | Action                 | Command                                      |
 |------------------------|----------------------------------------------|
@@ -40,7 +40,7 @@ git config --list                                 # show all settings
 
 ---
 
-## 🌿 Branching
+## Branching
 
 ```bash
 git branch                         # list local branches
@@ -55,11 +55,11 @@ git push -u origin <branch>        # push + set upstream
 git push origin --delete <branch>  # delete remote branch
 ```
 
-> 💡 Prune stale remote-tracking branches: `git fetch --prune` (or see `scripts/git/git-purge-branches.sh` in this repo to auto-delete merged local branches).
+> **Tip:** Prune stale remote-tracking branches with `git fetch --prune` (or see `scripts/git/git-purge-branches.sh` in this repo to auto-delete merged local branches).
 
 ---
 
-## 🔀 Merging & Rebasing
+## Merging & Rebasing
 
 ```bash
 git merge <branch>                 # merge branch into current
@@ -82,11 +82,11 @@ git cherry-pick <commit>           # apply a single commit here
 | `drop`   | delete the commit                     |
 | `edit`   | pause to amend the commit             |
 
-> ⚠️ **Golden rule**: never rebase/force-push a branch other people are working on (e.g. `main`). Rebase only your own unpushed/feature branches.
+> **Warning:** **Golden rule**: never rebase or force-push a branch other people are working on (for example, `main`). Rebase only your own unpushed or feature branches.
 
 ---
 
-## 💾 Stashing
+## Stashing
 
 ```bash
 git stash                          # stash tracked changes
@@ -101,7 +101,7 @@ git stash clear                    # delete all stashes
 
 ---
 
-## 🔍 Inspecting
+## Inspecting
 
 ```bash
 git log --oneline --graph --all         # visual history
@@ -116,11 +116,11 @@ git blame <file>                          # who changed each line
 git shortlog -sn                          # commit count per author
 ```
 
-> 💡 Search history for when a string appeared/disappeared: `git log -S "someFunction" --oneline` ("pickaxe").
+> **Tip:** Search history for when a string appeared or disappeared with `git log -S "someFunction" --oneline` ("pickaxe").
 
 ---
 
-## ↩️ Undoing Things (the panic section)
+## Undoing Things (the panic section)
 
 | Situation                               | Command                                    |
 |-----------------------------------------|--------------------------------------------|
@@ -136,13 +136,13 @@ git shortlog -sn                          # commit count per author
 | Clean untracked files (dry run)         | `git clean -nd`                            |
 | Clean untracked files (for real)        | `git clean -fd`                            |
 
-> 🛟 **`git reflog` is your safety net.** Almost nothing is truly lost — reflog records where HEAD has been, so you can `reset --hard` back to any recent state (even after a bad rebase or hard reset).
+> **Note:** **`git reflog` is your safety net.** Almost nothing is truly lost: reflog records where HEAD has been, so you can `reset --hard` back to any recent state (even after a bad rebase or hard reset).
 
-> ⚠️ `git reset --hard` and `git clean -fd` **permanently delete** work. Double-check before running.
+> **Warning:** `git reset --hard` and `git clean -fd` **permanently delete** work. Double-check before running.
 
 ---
 
-## 🏷️ Tags
+## Tags
 
 ```bash
 git tag                            # list tags
@@ -156,7 +156,7 @@ git push origin --delete v1.2.0    # delete remote tag
 
 ---
 
-## 🌐 Remotes
+## Remotes
 
 ```bash
 git remote -v                              # list remotes
@@ -178,9 +178,9 @@ git push origin main
 
 ---
 
-## ✍️ Commit Message Conventions
+## Commit Message Conventions
 
-Use **Conventional Commits** for a clean, tool-friendly history:
+Use **Conventional Commits** to keep history clear and friendly to tooling:
 
 ```
 <type>(<scope>): <short summary>
@@ -205,7 +205,7 @@ Example: `feat(auth): add refresh-token rotation`
 
 ---
 
-## 💡 Tips & Tricks
+## Tips & Tricks
 
 * **Aliases** save keystrokes — add to `~/.gitconfig`:
   ```bash
@@ -235,7 +235,7 @@ Example: `feat(auth): add refresh-token rotation`
 
 ---
 
-## ⚠️ Cross-Platform Notes
+## Cross-Platform Notes
 
 * **Line endings**: configure `core.autocrlf` (see Setup) to avoid whole-file diffs between Windows and macOS/Linux teammates.
 * **Case sensitivity**: macOS (default) and Windows filesystems are case-**insensitive**; Linux is case-**sensitive**. Renaming `File.js` → `file.js` may not register — use
@@ -245,7 +245,7 @@ Example: `feat(auth): add refresh-token rotation`
 
 ---
 
-## 🆘 Quick Reference: "How Do I…?"
+## Quick Reference: "How Do I…?"
 
 | I want to…                          | Do this                                 |
 |-------------------------------------|-----------------------------------------|

@@ -1,21 +1,21 @@
-# 🧩 Design Patterns Cheatsheet
+# Design Patterns Cheatsheet
 
-> A concise reference to the classic (GoF) design patterns plus common modern ones — what each solves, when to use it, and when *not* to. Examples lean on Java/TypeScript-style pseudocode but the
-> concepts are language-agnostic.
+> A practical guide to classic GoF design patterns and a few modern ones: what each solves, when it helps, and when it gets in the way. Examples use Java/TypeScript-style pseudocode, but the
+> ideas apply across languages.
 
 ---
 
-## 🧭 How to Choose
+## How to Choose
 
-* **Don't force patterns.** They're vocabulary and proven solutions, not goals. Reach for one when you feel the pain it solves.
+* **Don't force patterns.** They're a shared vocabulary and a set of proven options, not goals by themselves. Use one when you actually feel the problem it solves.
 * Prefer the **simplest** thing that works; refactor toward a pattern when duplication or rigidity appears.
 * Favor **composition over inheritance** and **program to interfaces**.
 
 ---
 
-## 🏗️ Creational Patterns
+## Creational Patterns
 
-*Concerned with object creation.*
+*These patterns help you create objects without tightly coupling code to concrete classes.*
 
 | Pattern              | Solves                                 | Use when…                                            |
 |----------------------|----------------------------------------|------------------------------------------------------|
@@ -32,9 +32,9 @@ Pizza p = new Pizza.Builder()
 				.build();
 ```
 
-### 🧪 Java Examples
+### Java Examples
 
-**Factory Method** — a method (often overridden by subclasses) decides the concrete type. *Use when callers shouldn't depend on concrete classes.*
+**Factory Method** — a method, often overridden by subclasses, decides the concrete type. *Use it when callers shouldn't depend on concrete classes.*
 ```java
 interface Notification { void send(String msg); }
 class EmailNotification implements Notification {
@@ -53,7 +53,7 @@ class EmailCreator extends NotificationCreator {
 }
 ```
 
-**Abstract Factory** — create *families* of related objects that must stay consistent. *Use when e.g. a UI theme needs a matching button + checkbox.*
+**Abstract Factory** — creates *families* of related objects that must stay consistent. *Use it when, for example, a UI theme needs a matching button and checkbox.*
 ```java
 interface Button { void render(); }
 interface Checkbox { void render(); }
@@ -69,7 +69,7 @@ class DarkFactory implements GuiFactory {
 // Client uses only interfaces → swap the whole family in one line.
 ```
 
-**Builder** — step-by-step construction. *Use when an object has many optional params or must be immutable.*
+**Builder** — builds an object step by step. *Use it when an object has many optional parameters or must be immutable.*
 ```java
 public record Pizza(String size, boolean cheese, boolean pepperoni) {
     static class Builder {
@@ -84,7 +84,7 @@ public record Pizza(String size, boolean cheese, boolean pepperoni) {
 Pizza p = new Pizza.Builder().size("L").cheese(true).build();
 ```
 
-**Prototype** — clone an existing instance. *Use when creation is expensive and copying is cheaper.*
+**Prototype** — clones an existing instance. *Use it when creation is expensive and copying is cheaper.*
 ```java
 public record Config(String env, List<String> flags) {
     public Config copyWith(String newEnv) {
@@ -95,7 +95,7 @@ Config base = new Config("prod", List.of("a", "b"));
 Config staging = base.copyWith("staging");
 ```
 
-**Singleton** — exactly one shared instance. *Use only for a genuinely global, stateless service.*
+**Singleton** — provides exactly one shared instance. *Use it only for a genuinely global, stateless service.*
 ```java
 public enum Registry {                              // enum = thread-safe singleton
     INSTANCE;
@@ -106,13 +106,13 @@ public enum Registry {                              // enum = thread-safe single
 Registry.INSTANCE.put("region", "eu");
 ```
 
-> ⚠️ **Singleton** is often an anti-pattern: it's global mutable state, hurts testability, and hides dependencies. Prefer dependency injection.
+> **Warning:** **Singleton** is often an anti-pattern: it's global mutable state, hurts testability, and hides dependencies. Prefer dependency injection.
 
 ---
 
-## 🧱 Structural Patterns
+## Structural Patterns
 
-*Concerned with composing classes/objects into larger structures.*
+*These patterns help compose classes and objects into larger structures without making them hard to change.*
 
 | Pattern       | Solves                                     | Use when…                                           |
 |---------------|--------------------------------------------|-----------------------------------------------------|
@@ -129,9 +129,9 @@ Registry.INSTANCE.put("region", "eu");
 Reader r = new BufferedReader(new InputStreamReader(in));
 ```
 
-### 🧪 Java Examples
+### Java Examples
 
-**Adapter** — make an incompatible interface fit. *Use when wrapping a third-party/legacy API.*
+**Adapter** — makes an incompatible interface fit. *Use it when wrapping a third-party or legacy API.*
 ```java
 interface PaymentProcessor { void pay(int cents); }        // what our app wants
 class LegacyStripe { void makePayment(double dollars) { /* ... */ } } // what we have
@@ -142,7 +142,7 @@ class StripeAdapter implements PaymentProcessor {
 }
 ```
 
-**Bridge** — separate an abstraction from its implementation so both vary independently. *Use when e.g. shapes × rendering engines would otherwise explode into N×M classes.*
+**Bridge** — separates an abstraction from its implementation so both can vary independently. *Use it when, for example, shapes and rendering engines would otherwise explode into N×M classes.*
 ```java
 interface Renderer { void drawCircle(double r); }          // implementation side
 abstract class Shape {                                     // abstraction side
@@ -157,7 +157,7 @@ class Circle extends Shape {
 }
 ```
 
-**Composite** — treat single items and groups uniformly. *Use for tree structures (files/folders, UI trees).*
+**Composite** — treats single items and groups uniformly. *Use it for tree structures such as files, folders, or UI trees.*
 ```java
 interface FileNode { int size(); }
 record File(int size) implements FileNode {
@@ -170,7 +170,7 @@ class Directory implements FileNode {
 }
 ```
 
-**Decorator** — add behavior by wrapping, not subclassing. *Use for layered, optional responsibilities.*
+**Decorator** — adds behavior by wrapping instead of subclassing. *Use it for layered, optional responsibilities.*
 ```java
 interface Coffee { double cost(); }
 class Espresso implements Coffee { public double cost() { return 2.0; } }
@@ -182,7 +182,7 @@ class MilkDecorator implements Coffee {
 Coffee c = new MilkDecorator(new Espresso());   // 2.5
 ```
 
-**Facade** — one simple entry point over a complex subsystem. *Use to hide orchestration of many classes.*
+**Facade** — provides one simple entry point over a complex subsystem. *Use it to hide orchestration across many classes.*
 ```java
 class VideoConverter {                          // facade
     public File convert(File src, String fmt) {
@@ -193,7 +193,7 @@ class VideoConverter {                          // facade
 }
 ```
 
-**Flyweight** — share common immutable state to save memory. *Use with huge numbers of similar objects.*
+**Flyweight** — shares common immutable state to save memory. *Use it with huge numbers of similar objects.*
 ```java
 class TreeTypeFactory {                          // shared "intrinsic" state
     private static final Map<String,TreeType> cache = new HashMap<>();
@@ -204,7 +204,7 @@ class TreeTypeFactory {                          // shared "intrinsic" state
 // Thousands of trees reuse a handful of TreeType instances.
 ```
 
-**Proxy** — a stand-in that controls access. *Use for lazy loading, caching, access control, or remote calls.*
+**Proxy** — provides a stand-in that controls access. *Use it for lazy loading, caching, access control, or remote calls.*
 ```java
 interface Image { void display(); }
 class RealImage implements Image {
@@ -224,9 +224,9 @@ class LazyImageProxy implements Image {
 
 ---
 
-## 🔁 Behavioral Patterns
+## Behavioral Patterns
 
-*Concerned with communication and responsibility between objects.*
+*These patterns organize communication and responsibility between objects.*
 
 | Pattern                     | Solves                                  | Use when…                                 |
 |-----------------------------|-----------------------------------------|-------------------------------------------|
@@ -253,9 +253,9 @@ checkout.
 setDiscount(total ->total *0.9);
 ```
 
-### 🧪 Java Examples
+### Java Examples
 
-**Strategy** — swap interchangeable algorithms at runtime. *Use when you have multiple ways to do one thing.*
+**Strategy** — swaps interchangeable algorithms at runtime. *Use it when you have multiple ways to do one thing.*
 ```java
 interface Discount { double apply(double total); }
 Discount none    = total -> total;
@@ -268,7 +268,7 @@ class Checkout {
 }
 ```
 
-**Observer** — notify dependents when state changes. *Use for event systems, pub/sub, reactive UIs.*
+**Observer** — notifies dependents when state changes. *Use it for event systems, pub/sub, or reactive UIs.*
 ```java
 interface Observer { void update(String event); }
 class Subject {
@@ -278,7 +278,7 @@ class Subject {
 }
 ```
 
-**Command** — encapsulate a request as an object. *Use for undo/redo, queues, transactions.*
+**Command** — encapsulates a request as an object. *Use it for undo/redo, queues, or transactions.*
 ```java
 interface Command { void execute(); void undo(); }
 class InsertText implements Command {
@@ -290,7 +290,7 @@ class InsertText implements Command {
 Deque<Command> history = new ArrayDeque<>();
 ```
 
-**State** — behavior changes with internal state. *Use for state machines (order/connection lifecycle).*
+**State** — changes behavior based on internal state. *Use it for state machines such as order or connection lifecycles.*
 ```java
 interface OrderState { OrderState next(); String label(); }
 class Pending implements OrderState {
@@ -303,7 +303,7 @@ class Shipped implements OrderState {
 }
 ```
 
-**Template Method** — fixed skeleton, variable steps. *Use when several algorithms share a structure but differ in details.*
+**Template Method** — keeps a fixed skeleton while allowing individual steps to vary. *Use it when several algorithms share a structure but differ in details.*
 ```java
 abstract class DataImporter {
     public final void run() { open(); parse(); close(); }   // fixed skeleton
@@ -314,7 +314,7 @@ abstract class DataImporter {
 class CsvImporter extends DataImporter { void parse() { /* csv */ } }
 ```
 
-**Chain of Responsibility** — pass a request along handlers. *Use for middleware, filters, validation pipelines.*
+**Chain of Responsibility** — passes a request along a chain of handlers. *Use it for middleware, filters, or validation pipelines.*
 ```java
 abstract class Handler {
     protected Handler next;
@@ -327,7 +327,7 @@ class AuthHandler extends Handler {
 }
 ```
 
-**Mediator** — centralize complex interactions. *Use when many objects would otherwise reference each other.*
+**Mediator** — centralizes complex interactions. *Use it when many objects would otherwise reference each other directly.*
 ```java
 interface ChatMediator { void send(String msg, User from); }
 class ChatRoom implements ChatMediator {
@@ -339,7 +339,7 @@ class ChatRoom implements ChatMediator {
 }
 ```
 
-**Iterator** — traverse without exposing internals. *Use for custom collections.* (Java's `Iterable`/`Iterator` is the built-in form.)
+**Iterator** — traverses a collection without exposing its internals. *Use it for custom collections.* (Java's `Iterable`/`Iterator` is the built-in form.)
 ```java
 class Range implements Iterable<Integer> {
     private final int end;
@@ -355,7 +355,7 @@ class Range implements Iterable<Integer> {
 for (int i : new Range(3)) { /* 0,1,2 */ }
 ```
 
-**Visitor** — add operations without changing the classes. *Use with a stable hierarchy but many operations.*
+**Visitor** — adds operations without changing the classes. *Use it with a stable hierarchy and many operations.*
 ```java
 interface Node { <R> R accept(Visitor<R> v); }
 record NumberNode(int value) implements Node {
@@ -365,7 +365,7 @@ interface Visitor<R> { R visit(NumberNode n); }
 Visitor<Integer> evaluator = n -> n.value();
 ```
 
-**Memento** — capture and restore state. *Use for snapshots and undo.*
+**Memento** — captures and restores state. *Use it for snapshots and undo.*
 ```java
 class Editor {
     private String content = "";
@@ -376,7 +376,7 @@ class Editor {
 }
 ```
 
-**Interpreter** — evaluate a grammar. *Use for small DSLs / expression parsing.*
+**Interpreter** — evaluates a grammar. *Use it for small DSLs or expression parsing.*
 ```java
 interface Expr { int eval(); }
 record Num(int v) implements Expr { public int eval() { return v; } }
@@ -388,7 +388,7 @@ int result = new Add(new Num(2), new Num(3)).eval();   // 5
 
 ---
 
-## 🌐 Common Architectural / Modern Patterns
+## Common Architectural / Modern Patterns
 
 | Pattern                  | Purpose                                                        |
 |--------------------------|----------------------------------------------------------------|
@@ -405,7 +405,7 @@ int result = new Add(new Num(2), new Num(3)).eval();   // 5
 
 ---
 
-## 🧯 Anti-Patterns to Avoid
+## Anti-Patterns to Avoid
 
 * **God Object**: one class that knows/does everything.
 * **Singleton abuse**: hidden global state everywhere.
@@ -416,7 +416,7 @@ int result = new Add(new Num(2), new Num(3)).eval();   // 5
 
 ---
 
-## 🧠 SOLID (the foundation)
+## SOLID (the foundation)
 
 | Letter | Principle             | In one line                                   |
 |--------|-----------------------|-----------------------------------------------|
@@ -426,7 +426,7 @@ int result = new Add(new Num(2), new Num(3)).eval();   // 5
 | **I**  | Interface Segregation | Prefer small, specific interfaces.            |
 | **D**  | Dependency Inversion  | Depend on abstractions, not concrete classes. |
 
-Plus **DRY** (don't repeat yourself), **KISS** (keep it simple), and **YAGNI** (you aren't gonna need it).
+Also keep **DRY** (don't repeat yourself), **KISS** (keep it simple), and **YAGNI** (you aren't gonna need it) in mind.
 
 ---
 

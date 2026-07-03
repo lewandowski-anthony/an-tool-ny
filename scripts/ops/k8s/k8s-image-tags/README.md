@@ -1,20 +1,20 @@
 # Kubernetes Image Tags (`k8s-image-tags.sh`)
 
-This Bash utility prints a **clean, aligned table of the container images** running in a namespace. For every deployment it lists each container and splits the image reference into its **repository**, **image name**, and **tag** columns.
+This Bash utility lists the container images used by deployments in a namespace. For each deployment, it shows every container and breaks the image reference into repository, image name, and tag columns.
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
 * **Deployment Coverage**: Iterates over all deployments and their containers in the namespace.
 * **Image Decomposition**: Splits each image into repository (registry + path), image name, and tag.
-* **Sane Defaults**: Falls back to `latest` when no tag is present, and `-` when there is no repository path.
-* **Auto-Aligned Table**: Column widths adapt to the longest value, with color-highlighted image and tag.
-* **Context Aware**: Optionally switches `kubectl` context and prints the active context/namespace.
+* **Sane Defaults**: Uses `latest` when no tag is present, and `-` when there is no repository path.
+* **Auto-Aligned Table**: Adjusts column widths to the longest value and highlights image and tag values with color.
+* **Context Aware**: Optionally switches `kubectl` context and prints the active context and namespace.
 
 ---
 
-## 🛠️ Usage Guide
+## Usage Guide
 
 ### 1. Command Options
 
@@ -33,9 +33,9 @@ This Bash utility prints a **clean, aligned table of the container images** runn
 
 ---
 
-## 🔍 Output
+## Output
 
-A table printed to the console:
+Prints a table to the console:
 
 ```
 DEPLOYMENT │ CONTAINER │ REPOSITORY                        │ IMAGE   │ TAG
@@ -46,7 +46,7 @@ web        │ nginx     │ -                                 │ nginx   │ l
 
 ---
 
-## 📋 Requirements
+## Requirements
 
 * **`kubectl`** configured with access to the target cluster.
 * **`jq`** for parsing deployment JSON.
@@ -54,7 +54,7 @@ web        │ nginx     │ -                                 │ nginx   │ l
 
 ---
 
-## ⚠️ Notes
+## Notes
 
 * The image reference is split on the last `/` for the repository and the last `:` for the tag.
 * Passing `--context` switches your active `kubectl` context for the session.

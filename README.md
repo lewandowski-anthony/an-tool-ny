@@ -1,4 +1,4 @@
-# 🧰 an-tool-ny
+# an-tool-ny
 
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/lewandowski-anthony/an-tool-ny/graphs/commit-activity)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -6,31 +6,31 @@
 > **an-tool-ny** /ɑ̃.tul.ni/ (noun): Anthony Lewandowski's daily toolbox. Contains everything needed to survive the workday, automate repetitive tasks, and avoid typing the exact same commands 50
 > times a day.
 
-Welcome to my digital Swiss Army knife. This repository centralizes all my scripts, configurations, and little utilities that keep me productive (and efficiently lazy) every single day.
+Welcome to my daily toolbox. This repo brings together the scripts, configs, templates, and small utilities I use to save time and keep repetitive work out of the way.
 
 ---
 
-## 🚀 What's Inside
+## What's Inside
 
-The repository is structured to keep things clean and easy to find:
+The repository is organized to make tools easy to find:
 
-* 📂 `scripts/`: Automation scripts (Bash, Python, PowerShell, etc.).
-* ⚙️ `config/`: Configuration files, custom aliases, and dotfiles.
-* 📝 `templates/`: Reusable file templates for daily work.
-* 🛠️ `utils/`: Miscellaneous helper tools.
+* `scripts/`: Automation scripts (Bash, Python, PowerShell, etc.).
+* `config/`: Configuration files, custom aliases, and dotfiles.
+* `templates/`: Reusable file templates for daily work.
+* `utils/`: Miscellaneous helper tools.
 
-## 🧰 Available Tools
+## Available Tools
 
-A catalogue of the scripts currently living in this toolbox. Tools with a dedicated `README.md` are linked for detailed usage.
+Here is the current tool catalogue. When a tool has its own `README.md`, the link points to the detailed usage notes.
 
-### 🗄️ Database
+### Database
 
 | Tool                                                                         | Description                                                                                                                                         |
 |------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
 | [`pg-data-generator.sh`](scripts/database/data-generator/postgres/README.md) | Introspects a PostgreSQL schema and pushes random, type-safe data while respecting FK order and constraints. Supports `--rows` for bulk generation. |
 | [`db-schema-extractor.sh`](scripts/database/schema-extractor/README.md)      | Extracts a database schema into a portable, readable output.                                                                                        |
 
-### ☸️ Kubernetes / Ops
+### Kubernetes / Ops
 
 | Tool                                                                          | Description                                                                                                                 |
 |-------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
@@ -46,41 +46,41 @@ A catalogue of the scripts currently living in this toolbox. Tools with a dedica
 | [`k8s-smart-restart.sh`](scripts/ops/k8s/k8s-smart-restart/README.md)         | Interactive zero-downtime rollout restart of a deployment, with live rollout status monitoring.                             |
 | `port-killer.sh`                                                              | Frees a local port by identifying and terminating the occupying process (Docker-aware). Usage: `port-killer.sh <port>`.     |
 
-### 🛠️ Dev
+### Dev
 
 | Tool                                                           | Description                                                                              |
 |----------------------------------------------------------------|------------------------------------------------------------------------------------------|
 | [`app-ressources-analyze.sh`](scripts/dev/resources/README.md) | Analyzes CPU/memory resource usage of one or more Kubernetes pods matched by name/regex. |
 
-### 🐳 Docker
+### Docker
 
 | Tool                         | Description                                                                                          |
 |------------------------------|------------------------------------------------------------------------------------------------------|
-| `docker-clean-containers.sh` | Nukes the local Docker environment: stops/removes all containers, volumes, and non-default networks. |
+| `docker-clean-containers.sh` | Cleans the local Docker environment by stopping/removing all containers, volumes, and non-default networks. |
 | `docker-scan-component.sh`   | Scans Dockerfiles/images for vulnerabilities using Trivy and writes a consolidated report.           |
 
-### 🌿 Git
+### Git
 
 | Tool                    | Description                                                                                                          |
 |-------------------------|----------------------------------------------------------------------------------------------------------------------|
 | `git-purge-branches.sh` | Fetches, prunes, and deletes local branches already merged into the main branch. Optional target directory argument. |
 
-### 🌐 Web
+### Web
 
 | Tool             | Description                                                                                     |
 |------------------|-------------------------------------------------------------------------------------------------|
 | `jwt-decoder.sh` | Decodes and pretty-prints the header and payload of a JWT. Usage: `jwt-decoder.sh <jwt_token>`. |
 
-## 🛠️ Setup & Usage
+## Setup & Usage
 
-To clone this masterpiece to your local machine:
+To clone the repository locally:
 
 ```bash
 git clone [https://github.com/lewandowski-anthony/an-tool-ny.git](https://github.com/lewandowski-anthony/an-tool-ny.git)
 cd an-tool-ny
 ```
 
-## 🧠 Project Philosophy
+## Project Philosophy
 
 If you have to do it more than twice, automate it.
 
@@ -88,8 +88,8 @@ If the script is ugly but it works, it belongs here.
 
 Always test locally before running a tool that could break production (ideally).
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License. Feel free to copy these scripts to look like a wizard in front of your coworkers.
+This project is licensed under the MIT License. Feel free to copy what helps and adapt it to your own workflow.
 
 Crafted with ☕ and a healthy dose of laziness by Anthony Lewandowski.

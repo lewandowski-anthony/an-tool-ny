@@ -1,20 +1,20 @@
 # Kubernetes Kafka Connectivity Test (`k8s-pod-kafka-test.sh`)
 
-This Bash utility runs a **two-stage Kafka connectivity diagnostic** from inside a running application pod. It first verifies raw TCP reachability to a broker, then spawns a temporary `kcat` pod to fetch cluster metadata and list topics — helping you distinguish network issues from Kafka-level (auth/listener) issues.
+This Bash utility checks Kafka connectivity from inside a running application pod in two stages. It first tests raw TCP reachability to a broker, then starts a temporary `kcat` pod to fetch cluster metadata and list topics, helping you tell network problems apart from Kafka auth or listener issues.
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
-* **Stage 1 — Network Layer**: TCP handshake test from the app pod using `nc`, with fallbacks to bash `/dev/tcp` or `telnet`.
-* **Stage 2 — Kafka Layer**: Spawns an ephemeral `kcat` pod to query broker metadata and discovered topics.
-* **Interactive or Direct**: Select the source pod from a menu or target it by name/regex; broker can be passed or prompted.
-* **Actionable Diagnostics**: Clear guidance when the network fails (NetworkPolicies/egress) vs. Kafka metadata fails (SASL/SSL/listeners).
-* **Context Aware**: Optionally switches `kubectl` context and prints the active context/namespace.
+* **Stage 1 — network layer**: Tests the TCP handshake from the app pod using `nc`, with fallbacks to bash `/dev/tcp` or `telnet`.
+* **Stage 2 — Kafka layer**: Starts an ephemeral `kcat` pod to query broker metadata and discover topics.
+* **Interactive or direct**: Choose the source pod from a menu or target it by name/regex; pass the broker directly or enter it when prompted.
+* **Actionable diagnostics**: Explains whether failures point to networking, such as NetworkPolicies or egress, or Kafka metadata issues, such as SASL/SSL or listeners.
+* **Context aware**: Can switch `kubectl` context and shows the active context and namespace.
 
 ---
 
-## 🛠️ Usage Guide
+## Usage Guide
 
 ### 1. Command Options
 
@@ -35,14 +35,14 @@ This Bash utility runs a **two-stage Kafka connectivity diagnostic** from inside
 
 ---
 
-## 🔍 Output
+## Output
 
 * **[1/2]** TCP handshake result (success/failure with remediation hints).
 * **[2/2]** Kafka metadata result plus a list of topics discovered on the cluster.
 
 ---
 
-## 📋 Requirements
+## Requirements
 
 * **`kubectl`** configured with access to the target cluster.
 * Permission to `exec` into pods and `run`/`delete` pods in the namespace.
@@ -51,7 +51,7 @@ This Bash utility runs a **two-stage Kafka connectivity diagnostic** from inside
 
 ---
 
-## ⚠️ Notes
+## Notes
 
 * The temporary broker-probe pod is named `kcat-diagnostic-<timestamp>` and removed automatically.
 * Stage 2 may fail even when the network is healthy if Kafka requires SASL/SSL or has misconfigured external listeners.

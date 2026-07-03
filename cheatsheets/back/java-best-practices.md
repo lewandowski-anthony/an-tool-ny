@@ -1,21 +1,21 @@
-# ☕ Java Best Practices Cheatsheet
+# Java Best Practices Cheatsheet
 
-> A concise collection of Java best practices, idioms, and gotchas for writing clean, robust, modern Java (17+). Applies across macOS, Windows, and Linux.
+> Practical Java tips for writing clean, reliable modern Java (17+), with notes that apply across macOS, Windows, and Linux.
 
 ---
 
-## 🧱 General Principles
+## General Principles
 
 * **Favor immutability**: make fields `final`, prefer immutable objects; use `record` for data carriers.
 * **Program to interfaces**, not implementations: `List<String> x = new ArrayList<>();`.
 * **Keep methods small** and single-purpose; keep classes cohesive.
-* **Fail fast**: validate arguments early with `Objects.requireNonNull` / guard clauses.
+* **Fail fast** by validating arguments early with `Objects.requireNonNull` or guard clauses.
 * **Avoid premature optimization** — measure with a profiler (JFR, async-profiler) first.
 * **Prefer composition over inheritance.**
 
 ---
 
-## 🎁 Modern Language Features (17+)
+## Modern Language Features (17+)
 
 ```java
 // Records — immutable data carriers
@@ -47,7 +47,7 @@ var users = new HashMap<String, User>();
 
 ---
 
-## 🚫 Null Handling
+## Null Handling
 
 * Return **empty collections**, not `null`, from methods.
 * Use `Optional<T>` for *return values that may be absent* — not for fields or parameters.
@@ -60,7 +60,7 @@ var users = new HashMap<String, User>();
 
 ---
 
-## 🗃️ Collections & Streams
+## Collections & Streams
 
 ```java
 // Prefer factory methods for small immutable collections
@@ -79,13 +79,13 @@ Map<Dept, List<Employee>> byDept =
 		employees.stream().collect(groupingBy(Employee::dept));
 ```
 
-* Don't overuse streams for trivial loops — a `for` is clearer and faster sometimes.
+* Don't overuse streams for trivial loops; sometimes a `for` loop is clearer and faster.
 * Avoid side effects inside stream operations (keep them pure).
 * Choose the right collection: `ArrayList` (random access), `LinkedList` (rarely worth it), `HashMap` (lookup), `EnumMap`/`EnumSet` (enums).
 
 ---
 
-## 🛑 Exceptions
+## Exceptions
 
 * Use **unchecked exceptions** for programming errors; checked only when the caller can meaningfully recover.
 * **Never swallow exceptions** (`catch (Exception e) {}`) — log or rethrow with context.
@@ -98,7 +98,7 @@ Map<Dept, List<Employee>> byDept =
 
 ---
 
-## 🧵 Concurrency
+## Concurrency
 
 * Prefer `java.util.concurrent` over raw `synchronized`/`wait`/`notify`.
 * Use `ExecutorService` / `CompletableFuture` instead of manually creating threads.
@@ -108,7 +108,7 @@ Map<Dept, List<Employee>> byDept =
 
 ---
 
-## 🧹 Code Quality & Style
+## Code Quality & Style
 
 * Follow a consistent style (Google Java Format, Spotless) — automate it.
 * Name things clearly: methods are verbs, classes/booleans read naturally (`isEmpty`, `hasNext`).
@@ -119,9 +119,9 @@ Map<Dept, List<Employee>> byDept =
 
 ---
 
-## 🧪 Testing
+## Testing
 
-* Use **JUnit 5** + **AssertJ** (fluent assertions) + **Mockito** for mocks.
+* Use **JUnit 5** with **AssertJ** for fluent assertions and **Mockito** for mocks.
 * One logical assertion per test; name tests as behavior (`shouldReturnEmptyWhenNotFound`).
 * Follow **Arrange-Act-Assert**.
 * Prefer real objects over mocks when cheap; mock only external boundaries.
@@ -129,7 +129,7 @@ Map<Dept, List<Employee>> byDept =
 
 ---
 
-## ⚡ Performance & Memory
+## Performance & Memory
 
 * Don't create garbage in hot loops; reuse buffers where sensible.
 * Use primitive types/arrays over boxed types in performance-critical code.
@@ -139,7 +139,7 @@ Map<Dept, List<Employee>> byDept =
 
 ---
 
-## 🛠️ Build & Tooling
+## Build & Tooling
 
 * **Maven** or **Gradle** — pin plugin/dependency versions; use a BOM (e.g. Spring) for alignment.
 * Run static analysis: SpotBugs, Error Prone, PMD, Checkstyle.
@@ -148,7 +148,7 @@ Map<Dept, List<Employee>> byDept =
 
 ---
 
-## ⚠️ Common Gotchas
+## Common Gotchas
 
 * `==` compares references for objects — use `.equals()` (and beware `Integer` caching for `-128..127`).
 * Mutable static state is a bug magnet and a concurrency hazard.

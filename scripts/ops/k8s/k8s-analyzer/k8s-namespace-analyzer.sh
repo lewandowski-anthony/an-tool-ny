@@ -54,28 +54,28 @@ print_section() {
     echo -e "${CYAN}──────────────────────────────────────────────────────────${NC}"
     echo ""
 
-    print_section "🚨 ALERTS & ANOMALIES (Pods not running or crashed)" "$RED"
+    print_section "ALERTS & ANOMALIES (Pods not running or crashed)" "$RED"
     CRASHED_PODS=$(kubectl get pods -n "$CURRENT_NS" --no-headers 2>/dev/null | grep -v "Running" | grep -v "Completed")
     if [ -n "$CRASHED_PODS" ]; then
         echo -e "${RED}$CRASHED_PODS${NC}" | sed 's/^/  /'
     else
-        echo -e "  ${GREEN}✅ All pods are healthy or completed.${NC}"
+        echo -e "  ${GREEN}All pods are healthy or completed.${NC}"
     fi
     echo ""
 
-    print_section "📦 PODS GLOBAL OVERVIEW" "$BLUE"
+    print_section "PODS GLOBAL OVERVIEW" "$BLUE"
     kubectl get pods -n "$CURRENT_NS" -o custom-columns=NAME:.metadata.name,READY:.status.containerStatuses[0].ready,STATUS:.status.phase,RESTARTS:.status.containerStatuses[0].restartCount,IP:.status.podIP,AGE:.metadata.creationTimestamp 2>/dev/null | sed 's/^/  /'
     echo ""
 
-    print_section "📊 RESOURCE CONSUMPTION (Top Pods)" "$YELLOW"
-    kubectl top pod -n "$CURRENT_NS" 2>/dev/null | sed 's/^/  /' || echo -e "  ${YELLOW}⚠️ metrics-server not available or loading.${NC}"
+    print_section "RESOURCE CONSUMPTION (Top Pods)" "$YELLOW"
+    kubectl top pod -n "$CURRENT_NS" 2>/dev/null | sed 's/^/  /' || echo -e "  ${YELLOW}metrics-server not available or loading.${NC}"
     echo ""
 
-    print_section "🛑 15 RECENT UNHEALTHY EVENTS" "$RED"
+    print_section "15 RECENT UNHEALTHY EVENTS" "$RED"
     kubectl get events -n "$CURRENT_NS" --sort-by='.metadata.creationTimestamp' 2>/dev/null | grep -E -i "warning|error|fail|kill|oom" | tail -n 15 | sed 's/^/  /'
     echo ""
 
-    print_section "🌐 NETWORKING & ROUTING (Services, Ingress, HTTPRoutes)" "$CYAN"
+    print_section "NETWORKING & ROUTING (Services, Ingress, HTTPRoutes)" "$CYAN"
     echo -e "${BOLD}--- Services ---${NC}"
     kubectl get svc -n "$CURRENT_NS" -o wide 2>/dev/null | sed 's/^/  /'
     echo ""
@@ -90,12 +90,12 @@ print_section() {
     fi
     echo ""
 
-    print_section "🔑 SECRETS LIST & DECODED DATA" "$PURPLE"
+    print_section "SECRETS LIST & DECODED DATA" "$PURPLE"
     SECRET_LIST=$(kubectl get secrets -n "$CURRENT_NS" -o jsonpath='{.items[*].metadata.name}' 2>/dev/null)
     if [ -n "$SECRET_LIST" ]; then
         for SEC in $SECRET_LIST; do
             SEC_TYPE=$(kubectl get secret "$SEC" -n "$CURRENT_NS" -o jsonpath='{.type}' 2>/dev/null)
-            echo -e "${BOLD}🔒 Secret:${NC} ${PURPLE}$SEC${NC} (${YELLOW}$SEC_TYPE${NC})"
+            echo -e "${BOLD}Secret:${NC} ${PURPLE}$SEC${NC} (${YELLOW}$SEC_TYPE${NC})"
             kubectl get secret "$SEC" -n "$CURRENT_NS" -o json 2>/dev/null | jq -r '.data | to_entries[] | "   ├── \(.key): \(.value | @base64d)"' 2>/dev/null || echo "   [Error decoding or empty data]"
             echo ""
         done
@@ -104,7 +104,7 @@ print_section() {
     fi
     echo ""
 
-    print_section "🦅 FLUX CD GIT REPOSITORIES & KUSTOMIZATIONS" "$GREEN"
+    print_section "FLUX CD GIT REPOSITORIES & KUSTOMIZATIONS" "$GREEN"
     echo -e "${BOLD}--- Flux GitRepositories ---${NC}"
     if kubectl api-resources | grep -q "gitrepositories"; then
         kubectl get gitrepositories -n "$CURRENT_NS" 2>/dev/null | sed 's/^/  /' || echo "  No GitRepositories found."
@@ -120,7 +120,7 @@ print_section() {
     fi
     echo ""
 
-    print_section "⚙️ CONFIGURATIONS & STORAGE" "$NC"
+    print_section "CONFIGURATIONS & STORAGE" "$NC"
     echo -e "  • ConfigMaps : ${YELLOW}$(kubectl get configmap -n "$CURRENT_NS" --no-headers 2>/dev/null | wc -l | xargs)${NC}"
     echo -e "  • PVCs       : ${YELLOW}$(kubectl get pvc -n "$CURRENT_NS" --no-headers 2>/dev/null | wc -l | xargs)${NC}"
     echo ""
@@ -129,7 +129,7 @@ print_section() {
         echo ""
     fi
 
-    print_section "⏳ WORKLOADS STATUS (Deployments, StatefulSets, CronJobs)" "$NC"
+    print_section "WORKLOADS STATUS (Deployments, StatefulSets, CronJobs)" "$NC"
     echo -e "${BOLD}--- Deployments ---${NC}"
     kubectl get deployments -n "$CURRENT_NS" 2>/dev/null | sed 's/^/  /'
     echo ""
@@ -147,4 +147,4 @@ print_section() {
 } | tee "$REPORT_FILE"
 
 echo ""
-echo -e "${GREEN}✔ Audit complete. Raw report (including color codes) saved to: $REPORT_FILE${NC}"
+echo -e "${GREEN}Audit complete. Raw report (including color codes) saved to: $REPORT_FILE${NC}"

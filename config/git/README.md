@@ -1,20 +1,19 @@
 # Git Work Configuration (`.gitconfig-work`)
 
-This repository contains a dedicated Git configuration file tailored for corporate environments. It ensures a strict separation between your personal projects and your professional work identity,
-enforces corporate networking workarounds, and includes high-productivity aliases.
+This repository includes a dedicated Git configuration for corporate work. It keeps your work identity separate from personal projects, includes useful daily aliases, and leaves room for common corporate networking settings.
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
-* **Isolated Identity**: Guarantees your professional name and corporate email are only used inside your work directories.
-* **Smart Aliases**: Includes short daily aliases and the powerful `git lg` for a beautiful, color-coded, graphical commit history tree.
-* **Safe Syncing**: Automates safer remote fetching with auto-pruning (`git sync`).
-* **Corporate Network Ready**: Optional placeholders for corporate proxies and SSL verification bypasses to tackle strict corporate firewalls.
+* **Isolated Identity**: Keeps your professional name and corporate email limited to your work directories.
+* **Smart Aliases**: Adds short daily aliases and `git lg` for a readable, color-coded commit history graph.
+* **Safe Syncing**: Fetches and prunes deleted remote branches before pulling latest updates with `git sync`.
+* **Corporate Network Ready**: Provides optional placeholders for corporate proxies and SSL verification settings when strict firewalls get in the way.
 
 ---
 
-## 🛠️ Setup Guide
+## Setup Guide
 
 ### 1. Create the Work Configuration File
 
@@ -52,12 +51,12 @@ email = personal.email@gmail.com
 path = ~/.gitconfig-work
 ```
 
-> ⚠️ **CRITICAL STEP**: Replace `~/Developer/work/` with the absolute or tilde path to the folder where you store all your professional repositories. The trailing slash `/` is mandatory for Git to
+> **Warning:** **CRITICAL STEP**: Replace `~/Developer/work/` with the absolute or tilde path to the folder where you store all your professional repositories. The trailing slash `/` is mandatory for Git to
 > match the directory correctly.
 
 ---
 
-## 🏃 Quick Reference & Aliases
+## Quick Reference & Aliases
 
 Once configured, any repository cloned inside your designated work folder will automatically inherit these productivity aliases:
 
@@ -72,7 +71,7 @@ Once configured, any repository cloned inside your designated work folder will a
 
 ---
 
-## 🔍 Verification
+## Verification
 
 To verify that the conditional inclusion is active, navigate to one of your work project folders and check your active Git email config:
 

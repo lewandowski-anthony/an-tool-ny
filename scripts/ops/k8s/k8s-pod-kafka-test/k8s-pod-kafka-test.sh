@@ -38,11 +38,11 @@ CURRENT_NS=$( [ -n "$NAMESPACE" ] && echo "$NAMESPACE" || kubectl config view --
 CURRENT_NS=${CURRENT_NS:-default}
 
 if [ -z "$POD_INPUT" ]; then
-    echo -e "${BLUE}🔍 Fetching running pods in namespace: ${YELLOW}$CURRENT_NS${NC}"
+    echo -e "${BLUE}Fetching running pods in namespace: ${YELLOW}$CURRENT_NS${NC}"
     PODS=($(kubectl get pods -n "$CURRENT_NS" --field-selector=status.phase=Running -o jsonpath='{.items[*].metadata.name}' 2>/dev/null))
 
     if [ ${#PODS[@]} -eq 0 ]; then
-        echo -e "${RED}❌ No running pods found in namespace $CURRENT_NS.${NC}"
+        echo -e "${RED}No running pods found in namespace $CURRENT_NS.${NC}"
         exit 1
     fi
 
@@ -55,25 +55,25 @@ else
 fi
 
 if [ -z "$TARGET_POD" ]; then
-    echo -e "${RED}❌ Error: No pod matching '$POD_INPUT' found.${NC}"
+    echo -e "${RED}Error: No pod matching '$POD_INPUT' found.${NC}"
     exit 1
 fi
 
 if [ -z "$BROKER_INPUT" ]; then
-    read -p "🎯 Enter Kafka Bootstrap Broker (e.g. kafka-cluster-kafka-bootstrap:9092) : " TARGET_BROKER
+    read -p "Enter Kafka Bootstrap Broker (e.g. kafka-cluster-kafka-bootstrap:9092) : " TARGET_BROKER
 else
     TARGET_BROKER="$BROKER_INPUT"
 fi
 
 if [ -z "$TARGET_BROKER" ]; then
-    echo -e "${RED}❌ Error: No Kafka broker specified.${NC}"
+    echo -e "${RED}Error: No Kafka broker specified.${NC}"
     exit 1
 fi
 
 BROKER_HOST=$(echo "$TARGET_BROKER" | cut -d: -f1)
 BROKER_PORT=$(echo "$TARGET_BROKER" | cut -d: -f2)
 
-echo -e "\n${BLUE}${BOLD}🌐 RUNNING DIAGNOSTIC FROM POD: ${YELLOW}$TARGET_POD${NC}"
+echo -e "\n${BLUE}${BOLD}RUNNING DIAGNOSTIC FROM POD: ${YELLOW}$TARGET_POD${NC}"
 echo -e "   Context      : ${GREEN}$CURRENT_CONTEXT${NC}"
 echo -e "   Namespace    : ${GREEN}$CURRENT_NS${NC}"
 echo -e "   Kafka Target : ${GREEN}$TARGET_BROKER${NC}\n"
@@ -90,27 +90,27 @@ fi
 
 eval "$TEST_CMD" >/dev/null 2>&1
 if [ $? -eq 0 ]; then
-    echo -e "   └── ${GREEN}✅ SUCCESS: Pod can physically reach Kafka on port $BROKER_PORT!${NC}\n"
+    echo -e "   └── ${GREEN}SUCCESS: Pod can physically reach Kafka on port $BROKER_PORT!${NC}\n"
 else
-    echo -e "   └── ${RED}❌ FAILURE: Network connection refused or timed out.${NC}"
-    echo -e "       👉 Check your K8s NetworkPolicies, Egress rules, or firewall config.${NC}\n"
+    echo -e "   └── ${RED}FAILURE: Network connection refused or timed out.${NC}"
+    echo -e "       Check your K8s NetworkPolicies, Egress rules, or firewall config.${NC}\n"
     exit 1
 fi
 
 echo -e "${BOLD}[2/2] Testing Kafka Layer (Fetching Metadata/Topics)...${NC}"
-echo -e "   ℹ️ Spawning a temporary kcat pod to query Kafka cluster layout..."
+echo -e "   ℹSpawning a temporary kcat pod to query Kafka cluster layout..."
 
 TMP_POD="kcat-diagnostic-$(date +%s)"
 kubectl run $TMP_POD -n "$CURRENT_NS" --rm -i --tty --image=edenhill/kcat:1.7.1 --restart=Never -- kcat -B "$TARGET_BROKER" -L -t 2>/dev/null | tail -n +1 > /tmp/kcat_out.txt
 
 if [ ${PIPESTATUS[0]} -eq 0 ] && [ -s /tmp/kcat_out.txt ]; then
-    echo -e "   └── ${GREEN}✅ SUCCESS: Broker metadata retrieved successfully!${NC}"
-    echo -e "\n${BOLD}📝 TOPICS DISCOVERED ON CLUSTER :${NC}"
+    echo -e "   └── ${GREEN}SUCCESS: Broker metadata retrieved successfully!${NC}"
+    echo -e "\n${BOLD}TOPICS DISCOVERED ON CLUSTER :${NC}"
     cat /tmp/kcat_out.txt | grep "topic" | awk '{print "   ├── " $0}' || echo "   (No custom topics found or metadata empty)"
 else
-    echo -e "   └── ${YELLOW}⚠️ Could not fetch high-level Kafka metadata.${NC}"
+    echo -e "   └── ${YELLOW}Could not fetch high-level Kafka metadata.${NC}"
     echo -e "       Possible reasons: Kafka requires SASL/SSL auth, or external listeners are misconfigured.${NC}"
 fi
 
 rm -f /tmp/kcat_out.txt
-echo -e "\n${GREEN}${BOLD}🎉 Diagnostic finished.${NC}"
+echo -e "\n${GREEN}${BOLD}Diagnostic finished.${NC}"

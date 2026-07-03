@@ -1,23 +1,23 @@
 #!/bin/bash
 
 ################################################################################
-# 🛡️  PREREQUISITE: TRIVY SCANNER INSTALLATION
+#  PREREQUISITE: TRIVY SCANNER INSTALLATION
 ################################################################################
 #
-# 🍎 macOS :
+# macOS :
 #    brew install aquasecurity/trivy/trivy
 #
-# 🐧 Linux (Debian/Ubuntu) :
+# Linux (Debian/Ubuntu) :
 #    sudo apt-get install wget apt-transport-https gnupg lsb-release
 #    wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
 #    echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb stable main" | sudo tee /etc/apt/sources.list.d/trivy.list
 #    sudo apt-get update && sudo apt-get install trivy
 #
-# 🐧 Linux (RedHat/CentOS/UBI) :
+# Linux (RedHat/CentOS/UBI) :
 #    Configure the Trivy YUM repository located at aquasecurity.github.io
 #    Then execute: sudo yum install -y trivy
 #
-# 🪟 Windows (PowerShell) :
+# Windows (PowerShell) :
 #    choco install trivy
 #    # OR
 #    scoop install trivy
@@ -62,7 +62,7 @@ scan_directory() {
         if [ $build_status -ne 0 ]; then
             echo "[ERROR] Cannot build docker image : $full_image_name" >> "$RESULT_FILE"
             echo "------------------------------------------------------------------------" >> "$RESULT_FILE"
-            echo "❌ BUILD FAILED for $full_image_name! Here is the log:"
+            echo "BUILD FAILED for $full_image_name! Here is the log:"
             echo "----------------------------------------------------"
             cat "$BUILD_LOG"
             echo "----------------------------------------------------"

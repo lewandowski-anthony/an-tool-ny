@@ -1,10 +1,10 @@
-# 🐘 PostgreSQL Cheatsheet
+# PostgreSQL Cheatsheet
 
-> A concise collection of PostgreSQL-specific commands, `psql` tips, and idioms. For standard SQL (joins, window functions, transactions), see `sql.md`.
+> A practical guide to PostgreSQL-specific commands, `psql` tips, and everyday patterns. For standard SQL basics like joins, window functions, and transactions, see `sql.md`.
 
 ---
 
-## 💻 psql (CLI)
+## psql (CLI)
 
 ```bash
 psql -h localhost -p 5432 -U postgres -d mydb    # connect
@@ -30,11 +30,11 @@ psql "postgresql://user:pass@host:5432/db"        # connection URI
 | `\copy`        | client-side import/export CSV      |
 | `\q`           | quit                               |
 
-> 💡 Run a script from disk with `\i /path/file.sql` (or `psql -f file.sql`). GUI tools may cache an editor buffer — running from the file is authoritative.
+> **Tip:** Run a script from disk with `\i /path/file.sql` (or `psql -f file.sql`). GUI tools may cache an editor buffer, so the file on disk is the safest source of truth.
 
 ---
 
-## 🧬 Data Types (highlights)
+## Data Types (highlights)
 
 * **Serial/Identity**: `GENERATED ALWAYS AS IDENTITY` (modern) or `SERIAL`/`BIGSERIAL`.
 * **UUID**: `uuid` type; generate with `gen_random_uuid()` (from `pgcrypto`) or `uuidv4()`.
@@ -46,7 +46,7 @@ psql "postgresql://user:pass@host:5432/db"        # connection URI
 
 ---
 
-## 🆙 Upsert (ON CONFLICT)
+## Upsert (ON CONFLICT)
 
 ```sql
 INSERT INTO users (id, email, name)
@@ -60,7 +60,7 @@ ON CONFLICT (email) DO NOTHING;
 
 ---
 
-## 🧩 JSONB
+## JSONB
 
 ```sql
 SELECT data->>'name'          AS name,      -- text
@@ -72,11 +72,11 @@ SELECT * FROM events WHERE data @> '{"active": true}';  -- contains
 CREATE INDEX idx_events_data ON events USING GIN (data);-- index jsonb
 ```
 
-> 💡 `->` returns json, `->>` returns text. `@>` (containment) is GIN-indexable.
+> **Tip:** `->` returns json, `->>` returns text. `@>` (containment) is GIN-indexable.
 
 ---
 
-## 🪟 Powerful Features
+## Powerful Features
 
 ```sql
 -- Generate series
@@ -100,7 +100,7 @@ JOIN LATERAL (SELECT * FROM orders WHERE user_id = u.id ORDER BY created_at DESC
 
 ---
 
-## ⚡ Performance & Introspection
+## Performance & Introspection
 
 ```sql
 EXPLAIN ANALYZE SELECT ...;                 -- real plan + timings
@@ -116,7 +116,7 @@ SELECT pg_size_pretty(pg_total_relation_size('users'));  -- table size
 
 ---
 
-## 🔐 Roles & Permissions
+## Roles & Permissions
 
 ```sql
 CREATE ROLE app LOGIN PASSWORD 'secret';
@@ -127,7 +127,7 @@ GRANT USAGE ON SCHEMA public TO app;
 
 ---
 
-## 🧠 Schemas & Search Path
+## Schemas & Search Path
 
 ```sql
 CREATE SCHEMA reporting;
@@ -137,7 +137,7 @@ SELECT * FROM reporting.my_table;
 
 ---
 
-## ⚠️ Common Gotchas
+## Common Gotchas
 
 * Identifiers fold to **lowercase** unless double-quoted (`"MyTable"` ≠ `mytable`).
 * `char(n)` is blank-padded and rarely what you want — use `text`/`varchar`.

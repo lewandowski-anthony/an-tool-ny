@@ -30,14 +30,14 @@ CURRENT_CONTEXT=$(kubectl config current-context)
 CURRENT_NS=$( [ -n "$NAMESPACE" ] && echo "$NAMESPACE" || kubectl config view --minify --output 'jsonpath={..namespace}' 2>/dev/null )
 CURRENT_NS=${CURRENT_NS:-default}
 
-echo -e "${BLUE}${BOLD}📦 Fetching running image versions...${NC}"
+echo -e "${BLUE}${BOLD}Fetching running image versions...${NC}"
 echo -e "   Context   : ${GREEN}$CURRENT_CONTEXT${NC}"
 echo -e "   Namespace : ${GREEN}$CURRENT_NS${NC}\n"
 
 DEPLOY_LIST=$(kubectl get deployments -n "$CURRENT_NS" -o json 2>/dev/null)
 
 if [ -z "$DEPLOY_LIST" ] || [ "$(echo "$DEPLOY_LIST" | jq '.items | length')" -eq 0 ]; then
-    echo -e "${RED}❌ No deployments found in namespace $CURRENT_NS.${NC}"
+    echo -e "${RED}No deployments found in namespace $CURRENT_NS.${NC}"
     exit 1
 fi
 

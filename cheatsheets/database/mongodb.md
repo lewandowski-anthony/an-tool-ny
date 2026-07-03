@@ -1,10 +1,10 @@
-# 🍃 MongoDB Cheatsheet
+# MongoDB Cheatsheet
 
-> A concise collection of MongoDB shell (`mongosh`) commands, query idioms, and best practices for the document database.
+> Handy MongoDB notes for `mongosh`, everyday queries, aggregation, indexing, and the habits that keep document databases manageable.
 
 ---
 
-## 💻 Connect (mongosh)
+## Connect (mongosh)
 
 ```bash
 mongosh                                   # local default
@@ -23,7 +23,7 @@ db.users.drop()
 
 ---
 
-## 🔍 Querying (find)
+## Querying (find)
 
 ```js
 db.users.find()                                   // all
@@ -53,7 +53,7 @@ db.users.find({ name: { $regex: /^A/, $options: "i" } })
 
 ---
 
-## ✏️ Insert / Update / Delete
+## Insert / Update / Delete
 
 ```js
 db.users.insertOne({ name: "Ana", age: 30 })
@@ -75,7 +75,7 @@ db.users.deleteMany({ active: false })
 
 ---
 
-## 🔗 Aggregation Pipeline
+## Aggregation Pipeline
 
 ```js
 db.orders.aggregate([
@@ -94,11 +94,11 @@ db.orders.aggregate([
 Common stages: `$match`, `$group`, `$project`, `$sort`, `$limit`, `$skip`,
 `$lookup`, `$unwind`, `$addFields`, `$facet`, `$count`, `$bucket`.
 
-> 💡 Put `$match` and `$project` **early** to reduce documents flowing through the pipeline.
+> **Tip:** Put `$match` and `$project` **early** to reduce documents flowing through the pipeline.
 
 ---
 
-## ⚡ Indexes
+## Indexes
 
 ```js
 db.users.createIndex({ email: 1 }, { unique: true })     // 1 = asc, -1 = desc
@@ -115,7 +115,7 @@ db.users.dropIndex("email_1")
 
 ---
 
-## 🧠 Best Practices
+## Best Practices
 
 * **Model for your access patterns** — embed related data read together; reference data that grows unbounded or is shared.
 * Avoid unbounded array growth in a single document (16MB doc limit).
@@ -127,7 +127,7 @@ db.users.dropIndex("email_1")
 
 ---
 
-## 🔧 Ops & Introspection
+## Ops & Introspection
 
 ```js
 db.stats()
@@ -141,7 +141,7 @@ mongorestore --uri="mongodb://..." ./backup        // shell: restore
 
 ---
 
-## ⚠️ Common Gotchas
+## Common Gotchas
 
 * `_id` is auto-generated `ObjectId` — immutable once set.
 * Documents in a collection can have different shapes (schemaless) — validate at the app or with `$jsonSchema`.

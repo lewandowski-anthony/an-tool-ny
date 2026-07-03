@@ -34,21 +34,21 @@ CURRENT_NS=$( [ -n "$NAMESPACE" ] && echo "$NAMESPACE" || kubectl config view --
 CURRENT_NS=${CURRENT_NS:-default}
 
 if [ -z "$TARGET_URL" ]; then
-    echo -e "${YELLOW}ℹ️ No target URL specified. Examples of valid targets:${NC}"
+    echo -e "${YELLOW}ℹNo target URL specified. Examples of valid targets:${NC}"
     echo -e "   - Internal service : http://smart-supply-api:8080/actuator/health"
     echo -e "   - External database: google.com:443 (for raw port check)"
     echo -e ""
-    read -p "🎯 Enter target URL or Host:Port : " TARGET_URL
+    read -p "Enter target URL or Host:Port : " TARGET_URL
 fi
 
 if [ -z "$TARGET_URL" ]; then
-    echo -e "${RED}❌ Error: Target cannot be empty.${NC}"
+    echo -e "${RED}Error: Target cannot be empty.${NC}"
     exit 1
 fi
 
 POD_NAME="k8s-network-tester-$(date +%s)"
 
-echo -e "${BLUE}${BOLD}🚀 Spawning temporary network-tester pod...${NC}"
+echo -e "${BLUE}${BOLD}Spawning temporary network-tester pod...${NC}"
 echo -e "   Context   : ${GREEN}$CURRENT_CONTEXT${NC}"
 echo -e "   Namespace : ${GREEN}$CURRENT_NS${NC}"
 echo -e "   Target    : ${YELLOW}$TARGET_URL${NC}\n"

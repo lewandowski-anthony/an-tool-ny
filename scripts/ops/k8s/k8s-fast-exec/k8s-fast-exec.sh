@@ -34,11 +34,11 @@ CURRENT_NS=$( [ -n "$NAMESPACE" ] && echo "$NAMESPACE" || kubectl config view --
 CURRENT_NS=${CURRENT_NS:-default}
 
 if [ -z "$POD_INPUT" ]; then
-    echo -e "${BLUE}🔍 Fetching active pods in namespace: ${YELLOW}$CURRENT_NS${NC}"
+    echo -e "${BLUE}Fetching active pods in namespace: ${YELLOW}$CURRENT_NS${NC}"
     PODS=($(kubectl get pods -n "$CURRENT_NS" --field-selector=status.phase=Running -o jsonpath='{.items[*].metadata.name}' 2>/dev/null))
 
     if [ ${#PODS[@]} -eq 0 ]; then
-        echo -e "${RED}❌ No running pods found in namespace $CURRENT_NS.${NC}"
+        echo -e "${RED}No running pods found in namespace $CURRENT_NS.${NC}"
         exit 1
     fi
 
@@ -55,17 +55,17 @@ else
 fi
 
 if [ -z "$TARGET_POD" ]; then
-    echo -e "${RED}❌ Error: No pod matching '$POD_INPUT' found in namespace '$CURRENT_NS'.${NC}"
+    echo -e "${RED}Error: No pod matching '$POD_INPUT' found in namespace '$CURRENT_NS'.${NC}"
     exit 1
 fi
 
-echo -e "\n${BLUE}🚀 Connecting to pod: ${BOLD}$TARGET_POD${NC}"
+echo -e "\n${BLUE}Connecting to pod: ${BOLD}$TARGET_POD${NC}"
 echo -e "   Context   : ${GREEN}$CURRENT_CONTEXT${NC}"
 echo -e "   Namespace : ${GREEN}$CURRENT_NS${NC}\n"
 
 if kubectl exec -n "$CURRENT_NS" "$TARGET_POD" -- which bash >/dev/null 2>&1; then
     kubectl exec -it -n "$CURRENT_NS" "$TARGET_POD" -- bash
 else
-    echo -e "${YELLOW}ℹ️ 'bash' is not available in this container. Falling back to 'sh'...${NC}\n"
+    echo -e "${YELLOW}ℹ'bash' is not available in this container. Falling back to 'sh'...${NC}\n"
     kubectl exec -it -n "$CURRENT_NS" "$TARGET_POD" -- sh
 fi

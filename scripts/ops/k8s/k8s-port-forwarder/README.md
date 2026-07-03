@@ -1,19 +1,19 @@
 # Kubernetes Port-Forward Manager (`k8s-port-forward-manager.sh`)
 
-This Bash utility provides an **interactive** way to port-forward a Kubernetes deployment to your local machine. It lists the deployments in a namespace, lets you pick one from a menu, frees the local port if it is already in use, and launches the port-forward as a resilient background process.
+This Bash utility gives you an interactive way to port-forward a Kubernetes deployment to your local machine. It lists deployments in a namespace, lets you choose one, frees the local port if it is already in use, and starts the port-forward as a resilient background process.
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
-* **Interactive Selection**: Lists all deployments in the namespace and prompts you to choose one.
-* **Automatic Port Cleanup**: Detects any local process already bound to the target port and kills it before forwarding.
-* **Resilient Background Process**: Launches `kubectl port-forward` with `nohup` + `disown` so it survives terminal closure.
-* **Startup Verification**: Confirms the forward actually started; on failure, prints the captured `kubectl` error output.
+* **Interactive selection**: Lists deployments in the namespace and prompts you to choose one.
+* **Automatic port cleanup**: Detects any local process already bound to the target port and kills it before forwarding.
+* **Resilient background process**: Starts `kubectl port-forward` with `nohup` + `disown` so it survives terminal closure.
+* **Startup verification**: Confirms the forward started; if it fails, prints the captured `kubectl` error output.
 
 ---
 
-## 🛠️ Usage Guide
+## Usage Guide
 
 ### 1. Command Options
 
@@ -35,7 +35,7 @@ After selecting a deployment, the service becomes available at `http://localhost
 
 ---
 
-## 🔍 Behaviour
+## Behaviour
 
 1. Resolves the namespace and lists available deployments.
 2. Prompts for an interactive selection.
@@ -45,7 +45,7 @@ After selecting a deployment, the service becomes available at `http://localhost
 
 ---
 
-## 📋 Requirements
+## Requirements
 
 * **`kubectl`** configured with access to the target cluster.
 * **`lsof`** (used to detect the process occupying the local port).
@@ -53,7 +53,7 @@ After selecting a deployment, the service becomes available at `http://localhost
 
 ---
 
-## ⚠️ Notes
+## Notes
 
 * The same port number is used for **both** the local and the remote side (`<port>:<port>`).
 * The background process is detached (`disown`); to stop it later, find and kill it manually (e.g. `lsof -t -i :<port>` then `kill`).

@@ -1,26 +1,24 @@
 # Kafka Connect JDBC Source
 
-This image is a connect base that can holds any Kafka connector of type JDBC source
-This image is not meant to be used as is in production. It is only a base that helps you into the creation of you connectors in production.
-To use it, you have to create your own image and extends this one then configure it.
+This image is a Kafka Connect base image for JDBC source connectors. It is not intended to be used directly in production. Instead, create your own image from this one, add your connector configuration, and extend it for your deployment needs.
 
 ## Build on your local
 
-Go to the **local** directory and run this command :
+Go to the **local** directory and run this command:
 
 ````shell
 $ docker-compose up --build
 ````
 
-This will build and run the kafka connect image in a kafka environment (kafka, zookeeper, schema registry, akhq).
+This builds and runs the Kafka Connect image in a local Kafka environment (Kafka, Zookeeper, Schema Registry, and AKHQ).
 
 ## How to use it
 
-This image helps you to create your connectors and configure the SSL part.
+Use this image as a base for creating connectors and configuring SSL support.
 
 ### Create/Update connectors
 
-You need only to pass the connectors vault keys to as environment variable. Example of the K8s Manifest file :
+Pass the connector Vault keys as an environment variable. Example Kubernetes manifest:
 
 ````yaml
   env:
@@ -28,7 +26,7 @@ You need only to pass the connectors vault keys to as environment variable. Exam
       value: network-jdbc-connector.json
 ````
 
-with multiple connectors :
+With multiple connectors:
 
 ````yaml
   env:
@@ -38,9 +36,9 @@ with multiple connectors :
 
 **The image will use the file name (network-jdbc-connector or purchasemethod-jdbc-connector in the example) as the connector name**
 
-It will also look for these files under **/vault/secrets**. So make sure to add a key to your Vault (network-jdbc-connector.json for example).
+It will also look for these files under **/vault/secrets**. Make sure to add a matching key to your Vault, such as network-jdbc-connector.json.
 
-Don't forget to upload the file into your secret store :
+Don't forget to upload the file into your secret store:
 ````yaml
 data:
   - secretKey: network-jdbc-connector.json
@@ -49,7 +47,7 @@ data:
       property: network-jdbc-connector.json
 ````
 
-And to upload the secret store as volume (mounted on /vault/secrets) :
+And mount the secret store as a volume on **/vault/secrets**:
 
 ````yaml
 - name: network-jdbc-connector-secret-volume
@@ -57,7 +55,7 @@ And to upload the secret store as volume (mounted on /vault/secrets) :
   mountPath: "/vault/secrets"
 ````
 
-The Vault content must your connector description file in this format (as we said, we consider the vault key as the connector name) :
+The Vault content must contain your connector description file in this format. As noted above, the Vault key is used as the connector name:
 ````json
 {
     "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
@@ -75,25 +73,24 @@ The Vault content must your connector description file in this format (as we sai
 
 ### Generate certificates
 
-**PN : You can upload your certificates and configure your connector if you want without using this feature**
+**Note:** You can upload your certificates and configure your connector without using this feature.
 
-If you want the image to handle the certificates generation, you have to pass these variables to the runtime.
-Here's an example.
+If you want the image to handle certificate generation, pass these variables at runtime. Here's an example.
 
-Activate the feature :
+Activate the feature:
 
 ````yaml
 - name: GENERATE_CERTIFICATES
   value: 'true'
 ````
 
-You can debug certificates using this variable :
+You can debug certificates using this variable:
 ````yaml
 - name: DISPLAY_CERTIFICATES
   value: 'true'
 ````
 
-Make sure to load these files on your secret-store and to mount them under **/vault/secrets**:
+Make sure to load these files on your secret store and mount them under **/vault/secrets**:
 
 ````yaml
 - name: CA_CERTIFICATE
@@ -123,5 +120,5 @@ Make sure to load these files on your secret-store and to mount them under **/va
       key: KAFKA_TRUSTSTORE_PASSWORD
 ````
 
-- Don't modify the **name** part from the secret store (but you are free to modify them on the vault). The image looks for CA_CERTIFICATE, USER_ACCESS_KEY, USER_ACCESS_CERTIFICATE, KAFKA_KEYSTORE_PASSWORD and KAFKA_TRUSTSTORE_PASSWORD under **/vault/secrets**
-- You don't need to pass these parameters as environment variables to the connector container
+- Do not modify the **name** part from the secret store, although you can change the Vault-side names. The image looks for CA_CERTIFICATE, USER_ACCESS_KEY, USER_ACCESS_CERTIFICATE, KAFKA_KEYSTORE_PASSWORD and KAFKA_TRUSTSTORE_PASSWORD under **/vault/secrets**.
+- You do not need to pass these parameters as environment variables to the connector container.

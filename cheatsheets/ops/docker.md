@@ -1,10 +1,10 @@
-# 🐳 Docker Cheatsheet
+# Docker Cheatsheet
 
-> A practical collection of Docker commands, tips, and tricks for everyday container work. Commands are cross-platform (macOS, Windows, Linux); OS-specific notes are flagged where relevant.
+> A practical Docker reference for everyday container work. The commands are cross-platform (macOS, Windows, Linux), with OS-specific notes called out where useful.
 
 ---
 
-## 🚀 Images
+## Images
 
 ```bash
 docker build -t app:1.0 .                 # build from Dockerfile in .
@@ -21,7 +21,7 @@ docker inspect app:1.0                     # full metadata
 
 ---
 
-## 📦 Containers
+## Containers
 
 ```bash
 docker run -d --name web -p 8080:80 nginx  # detached, named, port-mapped
@@ -39,11 +39,11 @@ docker restart web
 docker stats                                # live resource usage
 ```
 
-> 💡 See this repo's `scripts/docker/docker-clean-containers.sh` to nuke all containers/volumes/networks at once.
+> **Tip:** This repo's `scripts/docker/docker-clean-containers.sh` can remove all containers, volumes, and networks at once.
 
 ---
 
-## 🌐 Networks & Volumes
+## Networks & Volumes
 
 ```bash
 docker network ls
@@ -57,7 +57,7 @@ docker volume prune                         # remove unused volumes
 
 ---
 
-## 🧹 Cleaning Up
+## Cleaning Up
 
 ```bash
 docker system df                            # disk usage overview
@@ -67,11 +67,11 @@ docker container prune
 docker builder prune                        # clear build cache
 ```
 
-> ⚠️ `--volumes` deletes named volumes — you can lose database data. Double-check first.
+> **Warning:** `--volumes` deletes named volumes, so you can lose database data. Double-check first.
 
 ---
 
-## 🐙 Docker Compose
+## Docker Compose
 
 ```bash
 docker compose up -d                        # start stack (detached)
@@ -87,7 +87,7 @@ docker compose config                       # validate & render merged config
 
 ---
 
-## 📝 Dockerfile Best Practices
+## Dockerfile Best Practices
 
 * **Use small base images**: `alpine`, `-slim`, or distroless where possible.
 * **Multi-stage builds** to keep final images lean:
@@ -113,7 +113,7 @@ docker compose config                       # validate & render merged config
 
 ---
 
-## 🔐 Security Tips
+## Security Tips
 
 * Scan images for vulnerabilities — e.g. Trivy (see `scripts/docker/docker-scan-component.sh`), `docker scout cves <image>`.
 * Never bake secrets into images; use build secrets (`--secret`) or runtime env/volumes.
@@ -123,7 +123,7 @@ docker compose config                       # validate & render merged config
 
 ---
 
-## ⚠️ Cross-Platform Notes
+## Cross-Platform Notes
 
 * **Install**: macOS/Windows use **Docker Desktop**; Linux uses the native Docker Engine (`apt`/`dnf`) — no Desktop needed.
 * **Bind mount paths**: macOS/Linux use `/abs/path` or `$(pwd)`; Windows PowerShell uses `${PWD}` and drive paths (`C:\...`). WSL2 paths differ from Windows paths.
@@ -133,7 +133,7 @@ docker compose config                       # validate & render merged config
 
 ---
 
-## 🆘 Quick Reference: "How Do I…?"
+## Quick Reference: "How Do I…?"
 
 | I want to…                     | Do this                                  |
 |--------------------------------|------------------------------------------|

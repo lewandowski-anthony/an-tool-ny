@@ -1,23 +1,23 @@
-# 🅰️ Angular Best Practices Cheatsheet
+# Angular Best Practices Cheatsheet
 
-> A concise collection of modern Angular (v17+, standalone components + signals) best practices, idioms, and gotchas. Assumes TypeScript throughout.
+> Practical Angular tips for v17+ projects using standalone components, signals, and TypeScript.
 
 ---
 
-## 🧱 Components & Structure
+## Components & Structure
 
-* Use **standalone components** (no NgModules) in new code — simpler, tree-shakeable.
+* Use **standalone components** (no NgModules) in new code; they are simpler and tree-shake well.
 * Keep components **small and presentational**; push logic into **services**.
 * Use **`OnPush` change detection** by default for performance:
   ```ts
   @Component({ changeDetection: ChangeDetectionStrategy.OnPush, ... })
   ```
 * One component per file; follow the **Angular Style Guide** naming (`feature.component.ts`, `PascalCase` classes, `kebab-case` selectors with a prefix e.g. `app-`).
-* Prefer **smart (container) vs. dumb (presentational)** component separation.
+* Separate smart container components from dumb presentational components when it keeps the design clearer.
 
 ---
 
-## ⚡ Signals (v17+)
+## Signals (v17+)
 
 * Prefer **signals** for reactive local state over manual `BehaviorSubject` where it fits.
 ```ts
@@ -28,11 +28,11 @@ increment() { this.count.update(n => n + 1); }
 effect(() => console.log('count is', this.count()));  // side effects
 ```
 * Use `input()` / `output()` signal APIs and `model()` for two-way binding in modern Angular.
-* Signals integrate with `OnPush` cleanly and reduce reliance on `async` pipe boilerplate.
+* Signals work cleanly with `OnPush` and reduce `async` pipe boilerplate.
 
 ---
 
-## 💉 Dependency Injection
+## Dependency Injection
 
 * Inject via the **`inject()`** function or constructor; prefer `inject()` in modern code.
   ```ts
@@ -43,7 +43,7 @@ effect(() => console.log('count is', this.count()));  // side effects
 
 ---
 
-## 🔄 RxJS Discipline
+## RxJS Discipline
 
 * **Unsubscribe** to avoid memory leaks:
   * Prefer the **`async` pipe** in templates (auto-unsubscribes).
@@ -57,7 +57,7 @@ effect(() => console.log('count is', this.count()));  // side effects
 
 ---
 
-## 🌐 HTTP & Data
+## HTTP & Data
 
 * Centralize API calls in **services**, not components.
 * Use **typed responses**: `http.get<User[]>(url)`.
@@ -67,7 +67,7 @@ effect(() => console.log('count is', this.count()));  // side effects
 
 ---
 
-## 🧭 Routing
+## Routing
 
 * Use **lazy-loaded routes** with `loadComponent`/`loadChildren` for code-splitting.
 * Protect routes with **functional guards** (`CanActivateFn`).
@@ -76,7 +76,7 @@ effect(() => console.log('count is', this.count()));  // side effects
 
 ---
 
-## 📝 Forms
+## Forms
 
 * Prefer **Reactive Forms** (`FormGroup`/`FormControl`) over template-driven for anything non-trivial.
 * Type your forms with **typed reactive forms** (v14+).
@@ -85,7 +85,7 @@ effect(() => console.log('count is', this.count()));  // side effects
 
 ---
 
-## 🎨 Templates
+## Templates
 
 * Use the **new control flow** (`@if`, `@for`, `@switch`) over `*ngIf`/`*ngFor` (v17+):
   ```html
@@ -101,16 +101,16 @@ effect(() => console.log('count is', this.count()));  // side effects
 
 ---
 
-## 🧪 Testing
+## Testing
 
 * Unit test with **Jasmine/Karma** or migrate to **Jest**; use `TestBed` for DI.
 * Test services in isolation; mock `HttpClient` with `HttpTestingController`.
 * Use **Angular Testing Library** for user-centric component tests.
-* E2E with **Cypress** or **Playwright** (Protractor is deprecated).
+* Use **Cypress** or **Playwright** for E2E testing; Protractor is deprecated.
 
 ---
 
-## ⚡ Performance
+## Performance
 
 * `OnPush` + signals/immutability minimize change detection cycles.
 * Lazy-load routes and defer non-critical content (`@defer` block, v17+).
@@ -120,7 +120,7 @@ effect(() => console.log('count is', this.count()));  // side effects
 
 ---
 
-## ⚠️ Common Gotchas
+## Common Gotchas
 
 * **Memory leaks** from un-unsubscribed observables — use `async` pipe / `takeUntilDestroyed`.
 * Function calls in templates re-run every CD cycle → cache or use pipes/signals.
@@ -131,7 +131,7 @@ effect(() => console.log('count is', this.count()));  // side effects
 
 ---
 
-## 🛠️ Tooling
+## Tooling
 
 * Use the **Angular CLI** (`ng generate`, `ng build`, `ng test`) — keep it updated with `ng update`.
 * Enable **strict mode** and TypeScript `strict` compiler options.

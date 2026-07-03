@@ -1,25 +1,25 @@
 # Kubernetes Namespace Analyzer (`k8s-namespace-analyzer.sh`)
 
-This Bash utility performs a **full audit of a Kubernetes namespace** in a single pass and produces a colorized, human-readable report. It surfaces anomalies, workload health, resource consumption, networking, secrets, GitOps state, and storage — giving you a one-shot snapshot of everything running in a namespace.
+This Bash utility audits a Kubernetes namespace in one pass and writes a colorized report that is easy to scan. It covers workload health, resource usage, networking, secrets, GitOps resources, storage, and common warning signs so you can quickly understand what is running in a namespace.
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
-* **Alerts & Anomalies**: Highlights pods that are not `Running`/`Completed` (crashed, pending, error states).
-* **Pods Overview**: Name, readiness, status, restart count, IP, and age in a compact table.
-* **Resource Consumption**: Top pod CPU/memory usage via `kubectl top` (metrics-server).
-* **Recent Unhealthy Events**: The last 15 warning/error/kill/OOM events.
-* **Networking & Routing**: Services, Ingresses, and Gateway API `HTTPRoutes` (when the CRD is present).
+* **Alerts & Anomalies**: Highlights pods that are not `Running`/`Completed`, including crash, pending, and error states.
+* **Pods Overview**: Shows name, readiness, status, restart count, IP, and age in a compact table.
+* **Resource Consumption**: Reports top pod CPU and memory usage through `kubectl top` when metrics are available.
+* **Recent Unhealthy Events**: Shows the last 15 warning, error, kill, and OOM-related events.
+* **Networking & Routing**: Lists Services, Ingresses, and Gateway API `HTTPRoutes` when the CRD is present.
 * **Secrets Inspection**: Lists every secret and **base64-decodes** its data.
-* **GitOps State**: Flux CD `GitRepositories` and `Kustomizations` (when the CRDs are present).
-* **Configs & Storage**: ConfigMap and PVC counts, plus PVC details.
-* **Workloads Status**: Deployments, StatefulSets, and CronJobs.
-* **Saved Report**: Full output (with color codes) written to a timestamped file under `results/`.
+* **GitOps State**: Shows Flux CD `GitRepositories` and `Kustomizations` when the CRDs are present.
+* **Configs & Storage**: Reports ConfigMap and PVC counts, plus PVC details.
+* **Workloads Status**: Summarizes Deployments, StatefulSets, and CronJobs.
+* **Saved Report**: Writes the full output, including color codes, to a timestamped file under `results/`.
 
 ---
 
-## 🛠️ Usage Guide
+## Usage Guide
 
 ### 1. Command Options
 
@@ -38,17 +38,17 @@ This Bash utility performs a **full audit of a Kubernetes namespace** in a singl
 
 ---
 
-## 🔍 Output
+## Output
 
-The report is printed to the console (via `tee`) and stored under the `results/` directory:
+The report is printed to the console with `tee` and saved under the `results/` directory:
 
 * `results/namespace_audit_<namespace>_<timestamp>.txt`
 
-> The saved file preserves ANSI color codes. View it with `cat` / `less -R` to keep the colors, or strip them for plain text.
+> The saved file keeps ANSI color codes. View it with `cat` / `less -R` to keep the colors, or strip them for plain text.
 
 ---
 
-## 📋 Requirements
+## Requirements
 
 * **`kubectl`** configured with access to the target cluster.
 * **`jq`** for decoding secret data.
@@ -57,8 +57,8 @@ The report is printed to the console (via `tee`) and stored under the `results/`
 
 ---
 
-## ⚠️ Notes
+## Notes
 
-* **Security**: The Secrets section decodes and prints secret values in clear text. Handle the generated report file with care and avoid committing it.
+* **Warning:** The Secrets section decodes and prints secret values in clear text. Treat the generated report as sensitive and do not commit it.
 * Gateway API (`httproutes`) and Flux CD (`gitrepositories`, `kustomizations`) sections are skipped gracefully when the corresponding CRDs are not installed.
 * Passing `--context` switches your active `kubectl` context for the session.

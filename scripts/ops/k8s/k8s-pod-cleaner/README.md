@@ -1,19 +1,19 @@
 # Kubernetes Pod Cleaner (`k8s-pod-cleaner.sh`)
 
-This Bash utility scans a namespace for **dead pods** — `Evicted`, `Completed`, `Error`, or `OOMKilled` — and force-deletes them, keeping your namespace tidy.
+This Bash utility finds pods in a namespace that are no longer useful — `Evicted`, `Completed`, `Error`, or `OOMKilled` — and force-deletes them so the namespace stays clean.
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
-* **Targeted Cleanup**: Matches pods in `Evicted`, `Completed`, `Error`, and `OOMKilled` states.
-* **Force Delete**: Removes each stale pod with `--grace-period=0 --force`.
-* **Safe When Clean**: Reports success and does nothing when there is nothing to purge.
-* **Context Aware**: Optionally switches `kubectl` context and prints the active context/namespace.
+* **Targeted cleanup**: Finds pods in `Evicted`, `Completed`, `Error`, and `OOMKilled` states.
+* **Force delete**: Removes each stale pod with `--grace-period=0 --force`.
+* **Safe when clean**: Reports that nothing needs to be removed when no matching pods are found.
+* **Context aware**: Can switch `kubectl` context and shows the active context and namespace.
 
 ---
 
-## 🛠️ Usage Guide
+## Usage Guide
 
 ### 1. Command Options
 
@@ -32,7 +32,7 @@ This Bash utility scans a namespace for **dead pods** — `Evicted`, `Completed`
 
 ---
 
-## 🔍 Behaviour
+## Behaviour
 
 1. Lists pods matching `Evicted|Completed|Error|OOMKilled`.
 2. If none are found, prints a "clean" confirmation.
@@ -40,15 +40,15 @@ This Bash utility scans a namespace for **dead pods** — `Evicted`, `Completed`
 
 ---
 
-## 📋 Requirements
+## Requirements
 
 * **`kubectl`** configured with access to the target cluster.
 * Permission to `delete` pods in the namespace.
 
 ---
 
-## ⚠️ Notes
+## Notes
 
-* Deletion is **forced** (`--grace-period=0 --force`) — use with care, as it skips graceful termination.
+* Deletion is **forced** (`--grace-period=0 --force`), so use it with care because it skips graceful termination.
 * `Completed` pods (e.g. finished Jobs) are included in the purge.
 * Passing `--context` switches your active `kubectl` context for the session.

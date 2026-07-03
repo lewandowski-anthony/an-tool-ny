@@ -1,10 +1,10 @@
-# 🐬 MySQL Cheatsheet
+# MySQL Cheatsheet
 
-> A concise collection of MySQL-specific commands, CLI tips, and idioms. For standard SQL (joins, window functions, transactions), see `sql.md`. Mostly applies to MariaDB too.
+> Practical MySQL notes for the CLI, common syntax, and database-specific quirks. For standard SQL topics like joins, window functions, and transactions, see `sql.md`; most of this also applies to MariaDB.
 
 ---
 
-## 💻 CLI (mysql)
+## CLI (mysql)
 
 ```bash
 mysql -h localhost -P 3306 -u root -p mydb        # connect (prompts for password)
@@ -31,7 +31,7 @@ mysql -u root -p mydb < backup.sql                 # restore
 
 ---
 
-## 🧬 Data Types (highlights)
+## Data Types (highlights)
 
 * **Integers**: `TINYINT`, `INT`, `BIGINT` (+ `UNSIGNED`).
 * **Auto increment**: `INT AUTO_INCREMENT PRIMARY KEY`.
@@ -44,7 +44,7 @@ mysql -u root -p mydb < backup.sql                 # restore
 
 ---
 
-## 🆙 Upsert & Insert Variants
+## Upsert & Insert Variants
 
 ```sql
 -- Upsert
@@ -60,7 +60,7 @@ REPLACE INTO users (id, email) VALUES (1, 'a@x');  -- delete+insert (careful!)
 
 ---
 
-## 📅 Dates & Strings
+## Dates & Strings
 
 ```sql
 SELECT NOW(), CURDATE(), CURTIME();
@@ -74,7 +74,7 @@ SELECT IFNULL(commission, 0), COALESCE(a, b);
 
 ---
 
-## 🧩 JSON (5.7+)
+## JSON (5.7+)
 
 ```sql
 SELECT data->>'$.name' AS name,          -- unquoted extract
@@ -88,7 +88,7 @@ SELECT * FROM events WHERE data->>'$.status' = 'paid';
 
 ---
 
-## ⚡ Performance & Introspection
+## Performance & Introspection
 
 ```sql
 EXPLAIN SELECT ...;                    -- query plan
@@ -107,7 +107,7 @@ SHOW ENGINE INNODB STATUS\G
 
 ---
 
-## 🔒 Transactions & Locking
+## Transactions & Locking
 
 ```sql
 START TRANSACTION;
@@ -121,7 +121,7 @@ Default isolation level: **`REPEATABLE READ`** (differs from PostgreSQL's `READ 
 
 ---
 
-## 🔐 Users & Privileges
+## Users & Privileges
 
 ```sql
 CREATE USER 'app'@'%' IDENTIFIED BY 'secret';
@@ -131,11 +131,11 @@ SHOW GRANTS FOR 'app'@'%';
 DROP USER 'app'@'%';
 ```
 
-> 💡 The host part matters: `'app'@'localhost'` ≠ `'app'@'%'` (any host).
+> **Tip:** The host part matters: `'app'@'localhost'` ≠ `'app'@'%'` (any host).
 
 ---
 
-## ⚠️ Common Gotchas
+## Common Gotchas
 
 * Table name case sensitivity depends on the **OS/filesystem** (`lower_case_table_names`): case-sensitive on Linux, insensitive on macOS/Windows — a portability trap.
 * `utf8` is a 3-byte legacy alias — always use **`utf8mb4`** for full Unicode.

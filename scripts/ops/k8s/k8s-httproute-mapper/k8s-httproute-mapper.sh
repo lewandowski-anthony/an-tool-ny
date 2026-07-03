@@ -30,14 +30,14 @@ CURRENT_CONTEXT=$(kubectl config current-context)
 CURRENT_NS=$( [ -n "$NAMESPACE" ] && echo "$NAMESPACE" || kubectl config view --minify --output 'jsonpath={..namespace}' 2>/dev/null )
 CURRENT_NS=${CURRENT_NS:-default}
 
-echo -e "${BLUE}${BOLD}🌐 Mapping HTTPRoute & Gateway Topology...${NC}"
+echo -e "${BLUE}${BOLD}Mapping HTTPRoute & Gateway Topology...${NC}"
 echo -e "   Context   : ${GREEN}$CURRENT_CONTEXT${NC}"
 echo -e "   Namespace : ${GREEN}$CURRENT_NS${NC}\n"
 
 HTTPROUTE_LIST=$(kubectl get httproutes.gateway.networking.k8s.io -n "$CURRENT_NS" -o json 2>/dev/null)
 
 if [ -z "$HTTPROUTE_LIST" ] || [ "$(echo "$HTTPROUTE_LIST" | jq '.items | length')" -eq 0 ]; then
-    echo -e "${RED}❌ No HTTPRoutes found in namespace $CURRENT_NS.${NC}"
+    echo -e "${RED}No HTTPRoutes found in namespace $CURRENT_NS.${NC}"
     exit 1
 fi
 
@@ -52,7 +52,7 @@ RAW_MAP=$(echo "$HTTPROUTE_LIST" | jq -r '
 ' 2>/dev/null)
 
 if [ -z "$RAW_MAP" ]; then
-    echo -e "${YELLOW}⚠️ HTTPRoutes found but no routing matrix could be generated.${NC}"
+    echo -e "${YELLOW}HTTPRoutes found but no routing matrix could be generated.${NC}"
     exit 0
 fi
 

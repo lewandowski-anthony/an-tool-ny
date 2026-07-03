@@ -34,35 +34,35 @@ CURRENT_CONTEXT=$(kubectl config current-context)
 CURRENT_NS=$( [ -n "$NAMESPACE" ] && echo "$NAMESPACE" || kubectl config view --minify --output 'jsonpath={..namespace}' 2>/dev/null )
 CURRENT_NS=${CURRENT_NS:-default}
 
-echo -e "${BLUE}${BOLD}🔍 Fetching available deployments in namespace: ${YELLOW}$CURRENT_NS${NC}\n"
+echo -e "${BLUE}${BOLD}Fetching available deployments in namespace: ${YELLOW}$CURRENT_NS${NC}\n"
 
 DEPLOYMENTS=($(kubectl get deployments -n "$CURRENT_NS" -o jsonpath='{.items[*].metadata.name}' 2>/dev/null))
 
 if [ ${#DEPLOYMENTS[@]} -eq 0 ]; then
-    echo -e "${RED}❌ No deployments found in namespace $CURRENT_NS.${NC}"
+    echo -e "${RED}No deployments found in namespace $CURRENT_NS.${NC}"
     exit 1
 fi
 
 echo -e "${BOLD}Select the deployment you want to port-forward:${NC}"
 select TARGET_DEPLOYMENT in "${DEPLOYMENTS[@]}"; do
     if [ -n "$TARGET_DEPLOYMENT" ]; then
-        echo -e "\n🎯 Selected Deployment: ${GREEN}${BOLD}$TARGET_DEPLOYMENT${NC}\n"
+        echo -e "\nSelected Deployment: ${GREEN}${BOLD}$TARGET_DEPLOYMENT${NC}\n"
         break
     else
         echo -e "${RED}Invalid selection. Please choose a valid number.${NC}"
     fi
 done
 
-echo -e "${BLUE}${BOLD}🧹 Checking if port $PORT is already leaked locally...${NC}"
+echo -e "${BLUE}${BOLD}Checking if port $PORT is already leaked locally...${NC}"
 PID=$(lsof -t -i :$PORT)
 
 if [ -n "$PID" ]; then
-    echo -e "${YELLOW}⚠️ Port $PORT is blocked by PID $PID. Killing it...${NC}"
+    echo -e "${YELLOW}Port $PORT is blocked by PID $PID. Killing it...${NC}"
     kill -9 $PID >/dev/null 2>&1
     sleep 1
 fi
 
-echo -e "${BLUE}${BOLD}🚀 Launching port-forward for deployment/${TARGET_DEPLOYMENT} on port ${PORT}...${NC}"
+echo -e "${BLUE}${BOLD}Launching port-forward for deployment/${TARGET_DEPLOYMENT} on port ${PORT}...${NC}"
 echo -e "   Context   : ${GREEN}$CURRENT_CONTEXT${NC}"
 echo -e "   Namespace : ${GREEN}$CURRENT_NS${NC}"
 
@@ -76,11 +76,11 @@ sleep 2
 if kill -0 $BG_PID 2>/dev/null; then
     disown $BG_PID 2>/dev/null
     rm -f "$ERR_LOG"
-    echo -e "${GREEN}${BOLD}✅ Port-forward successfully running in background (PID: $BG_PID).${NC}"
+    echo -e "${GREEN}${BOLD}Port-forward successfully running in background (PID: $BG_PID).${NC}"
     echo -e "   Access it via: ${BLUE}http://localhost:$PORT${NC}"
 else
-    echo -e "${RED}❌ Error: Port-forward failed to start or died immediately.${NC}"
-    echo -e "${YELLOW}${BOLD}ℹ️ KUBECTL ERROR OUTPUT :${NC}"
+    echo -e "${RED}Error: Port-forward failed to start or died immediately.${NC}"
+    echo -e "${YELLOW}${BOLD}ℹKUBECTL ERROR OUTPUT :${NC}"
     if [ -s "$ERR_LOG" ]; then
         echo -e "${RED}$(cat "$ERR_LOG" | sed 's/^/   /')${NC}"
     else

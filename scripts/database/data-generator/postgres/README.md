@@ -1,10 +1,10 @@
 # PostgreSQL Random Data Generator (`pg-data-generator.sh`)
 
-This Bash utility introspects a live PostgreSQL schema and generates a ready-to-run `INSERT` script populated with random data. It resolves foreign-key dependencies automatically and respects column types, length limits, `CHECK` enumerations, and referential integrity. It runs through an ephemeral Docker container with host networking, so no native `psql` installation is required.
+This Bash utility reads a live PostgreSQL schema and creates a ready-to-run `INSERT` script filled with random data. It handles foreign-key order for you and respects column types, length limits, `CHECK` enumerations, and referential integrity. It runs through an ephemeral Docker container with host networking, so you do not need a local `psql` installation.
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
 * **Dependency-Aware Ordering**: Recursively resolves foreign keys so parent rows are always inserted before their children (with cycle detection).
 * **Type-Correct Values**: Generates values matching each column's data type — UUID, integer, numeric, float, boolean, date/time, `JSON`/`JSONB`, and text.
@@ -18,7 +18,7 @@ This Bash utility introspects a live PostgreSQL schema and generates a ready-to-
 
 ---
 
-## 🛠️ Usage Guide
+## Usage Guide
 
 ### 1. Command Options
 
@@ -32,7 +32,7 @@ This Bash utility introspects a live PostgreSQL schema and generates a ready-to-
 
 ### 2. Concrete Examples
 
-#### 🔹 Case 1: Single row per table (default)
+#### Case 1: Single row per table (default)
 ```bash
 ./pg-data-generator.sh \
 --host localhost \
@@ -43,7 +43,7 @@ This Bash utility introspects a live PostgreSQL schema and generates a ready-to-
 --schema smart_supply
 ```
 
-#### 🔹 Case 2: Bulk generation (100 rows per table)
+#### Case 2: Bulk generation (100 rows per table)
 ```bash
 ./pg-data-generator.sh \
 --host localhost \
@@ -57,7 +57,7 @@ This Bash utility introspects a live PostgreSQL schema and generates a ready-to-
 
 ---
 
-## 🔍 Output & Execution
+## Output & Execution
 
 The generated script is written to the `results/` directory:
 
@@ -72,7 +72,7 @@ psql -h localhost -p 5432 -U postgres -d smartsupply \
 
 ---
 
-## ⚙️ How It Works
+## How It Works
 
 1. **Metadata extraction** — three catalogue queries collect the columns (with type and max length), the foreign-key graph, and the `CHECK` constraint definitions.
 2. **Resolution & generation** — an inline Node.js engine builds the dependency graph, computes effective column lengths, parses enumerations, then walks the tables to emit type-correct `INSERT` statements in dependency order.
@@ -80,7 +80,7 @@ psql -h localhost -p 5432 -U postgres -d smartsupply \
 
 ---
 
-## 📋 Requirements
+## Requirements
 
 * **Docker** (the script pulls and runs `postgres:latest` with `--network host`).
 * **Node.js** (used for the generation engine).
@@ -88,7 +88,7 @@ psql -h localhost -p 5432 -U postgres -d smartsupply \
 
 ---
 
-## ⚠️ Notes
+## Notes
 
 * Generated data is intentionally random and **not semantically meaningful** — it only guarantees valid types and constraint compliance.
 * Foreign keys pointing at auto-generated (`serial`/`identity`) primary keys are satisfied at runtime via `SELECT ... ORDER BY random() LIMIT 1` sub-queries.

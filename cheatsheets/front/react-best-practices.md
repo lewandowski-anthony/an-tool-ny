@@ -1,10 +1,10 @@
-# ⚛️ React Best Practices Cheatsheet
+# React Best Practices Cheatsheet
 
-> A concise collection of modern React (18+, function components + hooks) best practices, idioms, and gotchas. Framework-agnostic of build tool (Vite, Next.js, etc.).
+> Practical React notes for modern apps: function components, hooks, common patterns, and the gotchas worth remembering. These tips apply whether you use Vite, Next.js, or another build setup.
 
 ---
 
-## 🧱 Components
+## Components
 
 * Use **function components + hooks** exclusively in new code (no class components).
 * Keep components **small and focused**; extract logic into custom hooks.
@@ -24,7 +24,7 @@ function UserCard({ user, onSelect }) {
 
 ---
 
-## 🪝 Hooks Rules
+## Hooks Rules
 
 * **Only call hooks at the top level** — never inside conditions, loops, or nested functions.
 * **Only call hooks from React functions** (components or custom hooks).
@@ -43,7 +43,7 @@ function useDebounce(value, delay = 300) {
 
 ---
 
-## 🔄 State Management
+## State Management
 
 * **Keep state minimal** — derive values during render instead of storing them.
 * **Lift state up** only as far as needed; colocate state near where it's used.
@@ -58,7 +58,7 @@ function useDebounce(value, delay = 300) {
 
 ---
 
-## 🎣 useEffect Discipline
+## useEffect Discipline
 
 * An Effect is for **synchronizing with external systems** (network, subscriptions, DOM), not for reacting to every render.
 * Always specify a correct **dependency array**; don't lie to the linter.
@@ -76,7 +76,7 @@ useEffect(() => {
 
 ---
 
-## ⚡ Performance
+## Performance
 
 * **Lists need stable `key`s** — use IDs, never array indexes (for dynamic lists).
 * Memoize expensive computations with `useMemo`; memoize callbacks passed to memoized children with `useCallback`.
@@ -87,7 +87,7 @@ useEffect(() => {
 
 ---
 
-## 🎨 JSX & Rendering
+## JSX & Rendering
 
 * Conditional rendering: `{cond && <X/>}` or ternaries; avoid `0 && <X/>` (renders `0`).
 * Keep JSX declarative; extract complex logic above the return.
@@ -96,7 +96,7 @@ useEffect(() => {
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 * Group by **feature/domain**, not by type (`/features/auth/...` over `/components`, `/hooks` globally).
 * Co-locate component, styles, tests, and hooks.
@@ -104,7 +104,7 @@ useEffect(() => {
 
 ---
 
-## 🧪 Testing
+## Testing
 
 * Use **React Testing Library** — test what the user sees/does, not internals.
 * Query by role/label/text, not test IDs where possible.
@@ -113,7 +113,7 @@ useEffect(() => {
 
 ---
 
-## ⚠️ Common Gotchas
+## Common Gotchas
 
 * **Stale closures**: values captured in Effects/callbacks are frozen per render — use functional updates or correct deps.
 * **Index as key** causes bugs on reorder/insert/delete.
@@ -125,7 +125,7 @@ useEffect(() => {
 
 ---
 
-## 🛠️ Tooling
+## Tooling
 
 * **Vite** for SPAs, **Next.js** for SSR/SSG/full-stack.
 * ESLint with `eslint-plugin-react-hooks` (enforces hook rules) + Prettier.

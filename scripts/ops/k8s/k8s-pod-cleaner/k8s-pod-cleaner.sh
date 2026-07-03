@@ -30,19 +30,19 @@ CURRENT_CONTEXT=$(kubectl config current-context)
 CURRENT_NS=$( [ -n "$NAMESPACE" ] && echo "$NAMESPACE" || kubectl config view --minify --output 'jsonpath={..namespace}' 2>/dev/null )
 CURRENT_NS=${CURRENT_NS:-default}
 
-echo -e "${BLUE}${BOLD}🔍 Scanning for dead, completed or evicted pods...${NC}"
+echo -e "${BLUE}${BOLD}Scanning for dead, completed or evicted pods...${NC}"
 echo -e "   Context   : ${GREEN}$CURRENT_CONTEXT${NC}"
 echo -e "   Namespace : ${GREEN}$CURRENT_NS${NC}\n"
 
 DEAD_PODS=$(kubectl get pods -n "$CURRENT_NS" --no-headers 2>/dev/null | grep -E "Evicted|Completed|Error|OOMKilled" | awk '{print $1}')
 
 if [ -z "$DEAD_PODS" ]; then
-    echo -e "${GREEN}✅ Your namespace is already squeaky clean!${NC}"
+    echo -e "${GREEN}Your namespace is already squeaky clean!${NC}"
 else
-    echo -e "${YELLOW}⚠️ Found dead pods. Starting purge...${NC}"
+    echo -e "${YELLOW}Found dead pods. Starting purge...${NC}"
     for POD in $DEAD_PODS; do
         echo -e "   ├── ${RED}Deleting:${NC} $POD"
         kubectl delete pod "$POD" -n "$CURRENT_NS" --grace-period=0 --force >/dev/null 2>&1
     done
-    echo -e "\n${GREEN}${BOLD}✨ Cleaning complete!${NC}"
+    echo -e "\n${GREEN}${BOLD}Cleaning complete!${NC}"
 fi

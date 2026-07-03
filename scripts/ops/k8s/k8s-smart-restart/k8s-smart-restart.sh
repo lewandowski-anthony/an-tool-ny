@@ -30,11 +30,11 @@ CURRENT_CONTEXT=$(kubectl config current-context)
 CURRENT_NS=$( [ -n "$NAMESPACE" ] && echo "$NAMESPACE" || kubectl config view --minify --output 'jsonpath={..namespace}' 2>/dev/null )
 CURRENT_NS=${CURRENT_NS:-default}
 
-echo -e "${BLUE}${BOLD}🔍 Fetching deployments...${NC}"
+echo -e "${BLUE}${BOLD}Fetching deployments...${NC}"
 DEPLOYMENTS=($(kubectl get deployments -n "$CURRENT_NS" -o jsonpath='{.items[*].metadata.name}' 2>/dev/null))
 
 if [ ${#DEPLOYMENTS[@]} -eq 0 ]; then
-    echo -e "${RED}❌ No deployments found in namespace $CURRENT_NS.${NC}"
+    echo -e "${RED}No deployments found in namespace $CURRENT_NS.${NC}"
     exit 1
 fi
 
@@ -47,11 +47,11 @@ select TARGET_DEP in "${DEPLOYMENTS[@]}"; do
     fi
 done
 
-echo -e "\n${BLUE}🚀 Triggering rollout restart for deployment/${TARGET_DEP}...${NC}"
+echo -e "\n${BLUE}Triggering rollout restart for deployment/${TARGET_DEP}...${NC}"
 echo -e "   Context   : ${GREEN}$CURRENT_CONTEXT${NC}"
 echo -e "   Namespace : ${GREEN}$CURRENT_NS${NC}\n"
 
 kubectl rollout restart deployment/$TARGET_DEP -n "$CURRENT_NS"
 
-echo -e "\n${YELLOW}👀 Monitoring rollout progression...${NC}"
+echo -e "\n${YELLOW}Monitoring rollout progression...${NC}"
 kubectl rollout status deployment/$TARGET_DEP -n "$CURRENT_NS"

@@ -1,22 +1,22 @@
 # Kubernetes Cluster Curl (`k8s-cluster-curl.sh`)
 
-This Bash utility spawns a **disposable network-tester pod** inside your cluster to probe a target from a pod's network perspective. It runs an HTTP request (via `curl`) for URLs, or a raw TCP port check (via `nc`) for `host:port` targets — perfect for debugging in-cluster connectivity, NetworkPolicies, and egress rules.
+This Bash utility starts a disposable network-tester pod inside your cluster and probes a target from the pod's network view. It uses `curl` for URLs and `nc` for `host:port` targets, which makes it useful for checking in-cluster connectivity, NetworkPolicies, and egress rules.
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
-* **In-Cluster Perspective**: Tests reachability from inside the namespace, not from your laptop.
+* **In-Cluster Perspective**: Tests reachability from inside the namespace instead of from your laptop.
 * **Dual Mode**:
   * **HTTP** — a verbose `curl` GET against a URL (`http://...`).
   * **Raw TCP** — a `nc` port check for `host:port` targets.
 * **Ephemeral**: Runs a throwaway pod with `--rm` so nothing is left behind.
-* **Interactive Fallback**: Prompts for a target if none is provided.
-* **Context Aware**: Optionally switches `kubectl` context and prints the active context/namespace.
+* **Interactive Fallback**: Prompts for a target when none is provided.
+* **Context Aware**: Optionally switches `kubectl` context and prints the active context and namespace.
 
 ---
 
-## 🛠️ Usage Guide
+## Usage Guide
 
 ### 1. Command Options
 
@@ -39,15 +39,15 @@ This Bash utility spawns a **disposable network-tester pod** inside your cluster
 
 ---
 
-## 🔍 Behaviour
+## Behaviour
 
-* Targets containing `:` **without** `http` → raw TCP check using a `busybox` pod (`nc -zv`).
-* All other targets → HTTP GET using a `curlimages/curl` pod (`curl -ivs`).
-* Both run with a 5-second connect timeout.
+* Targets containing `:` **without** `http` use a raw TCP check with a `busybox` pod (`nc -zv`).
+* All other targets use an HTTP GET with a `curlimages/curl` pod (`curl -ivs`).
+* Both modes run with a 5-second connect timeout.
 
 ---
 
-## 📋 Requirements
+## Requirements
 
 * **`kubectl`** configured with access to the target cluster.
 * Permission to `run`/`delete` pods in the namespace.
@@ -55,7 +55,7 @@ This Bash utility spawns a **disposable network-tester pod** inside your cluster
 
 ---
 
-## ⚠️ Notes
+## Notes
 
 * The temporary pod is named `k8s-network-tester-<timestamp>` and removed automatically.
 * Passing `--context` switches your active `kubectl` context for the session.

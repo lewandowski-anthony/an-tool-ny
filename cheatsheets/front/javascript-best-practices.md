@@ -1,10 +1,10 @@
-# 🟨 JavaScript Best Practices Cheatsheet
+# JavaScript Best Practices Cheatsheet
 
-> A concise collection of modern JavaScript (ES2020+) best practices, idioms, and gotchas for writing clean, robust code. Applies to browser and Node.js across all OSes.
+> Practical JavaScript (ES2020+) tips for writing clean, reliable code in browsers and Node.js across operating systems.
 
 ---
 
-## 🧱 Variables & Types
+## Variables & Types
 
 * Use **`const`** by default, **`let`** when reassignment is needed, **never `var`**.
 * Prefer **strict equality** `===` / `!==` (avoids type coercion surprises).
@@ -21,7 +21,7 @@ const list = [...arr1, ...arr2];
 
 ---
 
-## ⚡ Modern Syntax
+## Modern Syntax
 
 ```js
 // Optional chaining + nullish coalescing
@@ -43,7 +43,7 @@ config.timeout ??= 3000;
 
 ---
 
-## 🔁 Async & Promises
+## Async & Promises
 
 ```js
 // Prefer async/await over .then() chains
@@ -69,7 +69,7 @@ const [a, b] = await Promise.all([fetchA(), fetchB()]);
 
 ---
 
-## 🧹 Clean Code
+## Clean Code
 
 * Small, single-purpose functions with descriptive names.
 * Avoid deep nesting — return early (guard clauses).
@@ -79,7 +79,7 @@ const [a, b] = await Promise.all([fetchA(), fetchB()]);
 
 ---
 
-## 🧯 Error Handling
+## Error Handling
 
 * Throw `Error` objects (or subclasses), never strings.
 * Add context to errors; don't swallow them silently.
@@ -88,25 +88,25 @@ const [a, b] = await Promise.all([fetchA(), fetchB()]);
 
 ---
 
-## 🧪 Testing & Tooling
+## Testing & Tooling
 
-* **ESLint** + **Prettier** — automate linting and formatting (fail CI on lint errors).
+* Use **ESLint** and **Prettier** to automate linting and formatting, and fail CI on lint errors.
 * Test with **Vitest** or **Jest**; test behavior, not implementation.
 * Use **TypeScript** (or JSDoc types) for anything non-trivial — it catches whole classes of bugs.
 * Prefer `npm ci` in CI for reproducible installs; commit the lockfile.
 
 ---
 
-## 📦 Modules & Packaging
+## Modules & Packaging
 
 * Use **ES Modules** (`import`/`export`) over CommonJS in new code.
 * Keep dependencies lean; audit with `npm audit` / Trivy.
 * Pin versions and use a lockfile; avoid `latest`.
-* Tree-shake: prefer named imports so bundlers can drop unused code.
+* Prefer named imports so bundlers can tree-shake unused code.
 
 ---
 
-## ⚠️ Common Gotchas
+## Common Gotchas
 
 * `this` binding: arrow functions capture lexical `this`; regular functions don't.
 * Floating point: `0.1 + 0.2 !== 0.3` — round or use integer cents / a decimal lib.
@@ -118,10 +118,10 @@ const [a, b] = await Promise.all([fetchA(), fetchB()]);
 
 ---
 
-## 🌐 Cross-Platform / Runtime Notes
+## Cross-Platform / Runtime Notes
 
 * Paths differ across OSes — use Node's `path` module, not manual `/` concatenation.
-* Line endings: configure `.editorconfig` + Prettier to normalize (CRLF vs LF).
+* Configure `.editorconfig` and Prettier to normalize line endings (CRLF vs LF).
 * Environment variables: use `process.env`; load `.env` with `dotenv` (never commit secrets).
 * Target the right environment: browser (no `fs`), Node (no `window`), or both (isomorphic).
 

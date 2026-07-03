@@ -1,11 +1,11 @@
-# 🧠 IntelliJ IDEA Cheatsheet
+# IntelliJ IDEA Cheatsheet
 
-> A practical collection of IntelliJ IDEA shortcuts, tips, and tricks to code faster and stop fighting the IDE. Shortcuts are given for **macOS**, **Windows**, and **Linux** (Windows/Linux are usually
+> A handy IntelliJ IDEA reference for the shortcuts and features you’ll use most. Shortcuts are listed for **macOS**, **Windows**, and **Linux** (Windows/Linux are usually
 > identical).
 
 ---
 
-## 📖 How to Read This
+## How to Read This
 
 | Symbol | Key          |
 |--------|--------------|
@@ -16,11 +16,11 @@
 | ↩      | Enter        |
 | ⇥      | Tab          |
 
-> 💡 On Windows/Linux, `⌘` ≈ `Ctrl` and `⌥` ≈ `Alt` most of the time — but not always. The tables below list every platform explicitly.
+> **Tip:** On Windows/Linux, `⌘` ≈ `Ctrl` and `⌥` ≈ `Alt` most of the time — but not always. The tables below list every platform explicitly.
 
 ---
 
-## 🚀 The Essentials (learn these first)
+## The Essentials (learn these first)
 
 | Action                               | macOS | Windows / Linux  |
 |--------------------------------------|-------|------------------|
@@ -34,11 +34,11 @@
 | **Show Context Actions** (quick-fix) | ⌥ ↩   | Alt Enter        |
 | **Settings / Preferences**           | ⌘ ,   | Ctrl Alt S       |
 
-> 🎯 **The 3 shortcuts that matter most:** `Shift Shift` (find anything), `Alt/⌥ Enter` (fix anything), and `⌘/Ctrl Shift A` (do anything). If you only memorize three, memorize these.
+> **Note:** **The 3 shortcuts that matter most:** `Shift Shift` (find anything), `Alt/⌥ Enter` (fix anything), and `⌘/Ctrl Shift A` (do anything). If you only memorize three, make it these.
 
 ---
 
-## ✏️ Editing
+## Editing
 
 | Action                       | macOS      | Windows / Linux       |
 |------------------------------|------------|-----------------------|
@@ -58,7 +58,7 @@
 
 ---
 
-## 🧭 Navigation
+## Navigation
 
 | Action                   | macOS         | Windows / Linux      |
 |--------------------------|---------------|----------------------|
@@ -79,7 +79,7 @@
 
 ---
 
-## 🔍 Search & Replace
+## Search & Replace
 
 | Action                      | macOS                               | Windows / Linux |
 |-----------------------------|-------------------------------------|-----------------|
@@ -90,11 +90,11 @@
 | Find next / previous        | ⌘ G / ⌘ ⇧ G                         | F3 / Shift F3   |
 | Search structurally         | Find Action → "Search Structurally" | same            |
 
-> 💡 In Find in Path, toggle **Regex** and use capture groups (`$1`, `$2`) in Replace for powerful refactors.
+> **Tip:** In Find in Path, toggle **Regex** and use capture groups (`$1`, `$2`) in Replace for powerful refactors.
 
 ---
 
-## 🔧 Refactoring
+## Refactoring
 
 | Action               | macOS | Windows / Linux  |
 |----------------------|-------|------------------|
@@ -114,7 +114,7 @@
 
 ---
 
-## 🐞 Run & Debug
+## Run & Debug
 
 | Action               | macOS  | Windows / Linux |
 |----------------------|--------|-----------------|
@@ -131,7 +131,7 @@
 
 ---
 
-## 🪟 Tool Windows & UI
+## Tool Windows & UI
 
 | Action                             | macOS                                 | Windows / Linux |
 |------------------------------------|---------------------------------------|-----------------|
@@ -148,7 +148,7 @@
 
 ---
 
-## 🌱 Version Control (Git)
+## Version Control (Git)
 
 | Action                     | macOS                            | Windows / Linux |
 |----------------------------|----------------------------------|-----------------|
@@ -161,11 +161,11 @@
 | Rollback local changes     | ⌘ ⌥ Z                            | Ctrl Alt Z      |
 | Show history for selection | Right-click → Git → Show History | same            |
 
-> 💡 The **Local History** feature (`Right-click → Local History → Show History`) saves you even when you never committed — IntelliJ tracks changes independently of Git.
+> **Tip:** **Local History** (`Right-click → Local History → Show History`) can save you even when you never committed — IntelliJ tracks changes independently of Git.
 
 ---
 
-## 💡 Tips & Tricks
+## Tips & Tricks
 
 * **Postfix completion**: type `something.` then `.for`, `.if`, `.null`, `.nn`, `.var`, `.sout` → expands into the full construct. E.g. `list.for↩` builds a for-loop.
 * **Live templates**: `psvm`↩ → `main` method, `sout`↩ → print, `fori`↩ → indexed loop. Manage them in *Settings → Editor → Live Templates*.
@@ -179,12 +179,12 @@
 * **Database tools**: use the built-in Database tool window; when running SQL scripts against a datasource, prefer **"Run SQL Script…"** on the datasource rather than an open editor tab, since
   IntelliJ caches the editor buffer.
 * **Bookmarks with mnemonics**: `⌥ F3` (mac) / `Ctrl F11` assigns a digit/letter you can jump back to instantly.
-* **Frozen UI?** Use *Find Action → "Invalidate Caches / Restart"* to fix weird indexing or stale-state issues.
+* **Frozen UI?** Use *Find Action → "Invalidate Caches / Restart"* when indexing or cached state gets weird.
 * **Presentation Assistant**: enable it (plugin) to display the shortcut you just pressed on screen — great for learning muscle memory.
 
 ---
 
-## ⚙️ Keymap Notes
+## Keymap Notes
 
 * Change or discover any shortcut in *Settings → Keymap* (search by action name or by pressing the shortcut).
 * On **Linux**, some IDE shortcuts collide with the OS/window manager (e.g. `⌘/Super`-based, or `Alt F7`). Remap either the IDE or the desktop environment if a shortcut does nothing.
@@ -193,7 +193,7 @@
 
 ---
 
-## 📚 Further Reading
+## Further Reading
 
 * Official keymap PDFs: *Help → Keymap Reference* inside the IDE (exports the exact map for your OS).
 * Tip of the Day: *Help → Tip of the Day* — genuinely useful, not just filler.

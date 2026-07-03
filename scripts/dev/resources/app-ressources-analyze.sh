@@ -27,15 +27,15 @@ fi
 KUBECTL_ARGS="-n $NAMESPACE"
 if [ -n "$KUBE_CONTEXT" ]; then KUBECTL_ARGS="--context=$KUBE_CONTEXT -n $NAMESPACE"; fi
 
-echo "🔍 Resolving pod(s) for input '$POD_INPUT'..."
+echo "Resolving pod(s) for input '$POD_INPUT'..."
 MATCHING_PODS=($(kubectl get pods $KUBECTL_ARGS -o jsonpath='{.items[*].metadata.name}' | tr ' ' '\n' | grep -E "$POD_INPUT"))
 
 if [ ${#MATCHING_PODS[@]} -eq 0 ]; then
-    echo "❌ Error: No pods found matching '$POD_INPUT' in namespace '$NAMESPACE'."
+    echo "Error: No pods found matching '$POD_INPUT' in namespace '$NAMESPACE'."
     exit 1
 fi
 
-echo "🎯 Found ${#MATCHING_PODS[@]} pod(s) to analyze."
+echo "Found ${#MATCHING_PODS[@]} pod(s) to analyze."
 
 mkdir -p "${SCRIPT_DIR}/results"
 REPORT_FILE="${SCRIPT_DIR}/results/universal_analysis_${POD_INPUT//[^a-zA-Z0-9]/_}_${TIMESTAMP}.txt"
@@ -53,7 +53,7 @@ REPORT_FILE="${SCRIPT_DIR}/results/universal_analysis_${POD_INPUT//[^a-zA-Z0-9]/
 
 for POD_NAME in "${MATCHING_PODS[@]}"; do
     echo "--------------------------------------------------"
-    echo "➡️ Analyzing pod: $POD_NAME..."
+    echo "Analyzing pod: $POD_NAME..."
     echo "--------------------------------------------------"
 
     POD_JSON=$(kubectl get pod "$POD_NAME" $KUBECTL_ARGS -o json 2>/dev/null)
@@ -91,7 +91,7 @@ for POD_NAME in "${MATCHING_PODS[@]}"; do
 
     {
         echo "=========================================================="
-        echo " 📦 POD: $POD_NAME"
+        echo " POD: $POD_NAME"
         echo "=========================================================="
         echo "  • Detected Stack : $TECH_STACK"
         echo "  • IP             : $POD_IP"
@@ -119,7 +119,7 @@ for POD_NAME in "${MATCHING_PODS[@]}"; do
                 echo "$JVM_THREADS" | grep "at " | grep -v -E "java.lang|java.util|sun.|jdk.|org.apache.tomcat" | sort | uniq -c | sort -nr | head -n 8 | awk '{print "    Active Count: " $1 " \t-> " $2 " " $3}'
             } >> "$REPORT_FILE"
         else
-            echo "    ⚠️ [Warning] Java process found but JDK diagnosis tools (jcmd/jmap) are missing." >> "$REPORT_FILE"
+            echo "    [Warning] Java process found but JDK diagnosis tools (jcmd/jmap) are missing." >> "$REPORT_FILE"
         fi
     else
         RAW_LOGS=$(kubectl logs $KUBECTL_ARGS "$POD_NAME" --tail=3000 2>/dev/null)

@@ -36,12 +36,12 @@ while [[ $# -gt 0 ]]; do
         --pass) DB_PASS="$2"; shift 2 ;;
         --name) DB_NAME="$2"; shift 2 ;;
         -h|--help) usage ;;
-        *) echo "❌ Unknown option: $1"; usage ;;
+        *) echo "Unknown option: $1"; usage ;;
     esac
 done
 
 if [[ -z "$DB_TYPE" || -z "$DB_HOST" || -z "$DB_PORT" || -z "$DB_USER" || -z "$DB_PASS" || -z "$DB_NAME" ]]; then
-    echo "❌ Error: Missing required parameters."
+    echo "Error: Missing required parameters."
     usage
 fi
 
@@ -77,14 +77,14 @@ elif [ "$DB_TYPE" = "mongo" ]; then
         mongo:latest \
         mongodump --host "$DB_HOST" --port "$DB_PORT" --username "$DB_USER" --password "$DB_PASS" --db "$DB_NAME" --noData --archive 2>/dev/null > "$OUTPUT_FILE"
 else
-    echo "❌ ERROR: Unsupported database type '$DB_TYPE'."
+    echo "ERROR: Unsupported database type '$DB_TYPE'."
     exit 1
 fi
 
 if [ -s "$OUTPUT_FILE" ]; then
-    echo "🎉 Success! Schema extracted into: $OUTPUT_FILE"
+    echo "Success! Schema extracted into: $OUTPUT_FILE"
 else
-    echo "❌ ERROR: Failed to extract schema. Verify your credentials, port, and connectivity."
+    echo "ERROR: Failed to extract schema. Verify your credentials, port, and connectivity."
     rm -f "$OUTPUT_FILE"
     exit 1
 fi
