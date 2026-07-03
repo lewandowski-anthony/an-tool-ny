@@ -1,0 +1,62 @@
+name: 'Create Jira Version'
+description: 'Creates a Jira Cloud version (unreleased) and optionally links it to an issue'
+inputs:
+  version:
+    description: 'Version number'
+    required: true
+  project_key:
+    description: 'Jira project KEY'
+    required: true
+    default: 'SMSUP'
+  issue_key:
+    description: 'Issue key to add in version'
+    required: false
+  jira_base_url:
+    description: 'Jira server URL'
+    required: true
+  jira_user_email:
+    description: 'Jira service account'
+    required: true
+  jira_api_token:
+    description: 'Jira API token'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Create and Release Version via Jira API
+      shell: bash
+      env:
+        VERSION: ${{ inputs.version }}
+        PROJECT: ${{ inputs.project_key }}
+        TICKET: ${{ inputs.issue_key }}
+        BASE_URL: ${{ inputs.jira_base_url }}
+        USER_EMAIL: ${{ inputs.jira_user_email }}
+        API_TOKEN: ${{ inputs.jira_api_token }}
+      run: |
+        set -euo pipefail
+
+        CREDENTIALS=$(echo -n "${USER_EMAIL}:${API_TOKEN}" | base64 -w 0)
+        CURRENT_DATE=$(date +%Y-%m-%d)
+        
+        PAYLOAD=$(jq -n \
+          --arg name "$VERSION" \
+          --arg proj "$PROJECT" \
+          --arg date "$CURRENT_DATE" \
+          '{name: $name, project: $proj, archived: false, released: false, releaseDate: $date}')
+        
+        curl -fsS -X POST "$BASE_URL/rest/api/3/version" \
+          -H "Authorization: Basic $CREDENTIALS" \
+          -H "Content-Type: application/json" \
+          -d "$PAYLOAD"
+        
+        if [ -n "$TICKET" ]; then
+          ISSUE_PAYLOAD=$(jq -n \
+            --arg ver "$VERSION" \
+            '{update: {fixVersions: [{add: {name: $ver}}]}}')
+        
+          curl -fsS -X PUT "$BASE_URL/rest/api/3/issue/$TICKET" \
+            -H "Authorization: Basic $CREDENTIALS" \
+            -H "Content-Type: application/json" \
+            -d "$ISSUE_PAYLOAD"
+        fi

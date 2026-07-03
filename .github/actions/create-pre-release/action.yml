@@ -1,0 +1,88 @@
+name: "Create prerelease"
+description: "Create or update a GitHub prerelease from semantic tags"
+
+inputs:
+  new_tag:
+    description: "New full git tag"
+    required: true
+  previous_tag:
+    description: "Previous full git tag"
+    required: false
+  module:
+    description: "Module name"
+    required: true
+  github_token:
+    description: "Token with contents:write"
+    required: true
+
+outputs:
+  tag-name:
+    description: "Created prerelease tag"
+    value: ${{ inputs.new_tag }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Compute prerelease metadata
+      id: meta
+      shell: bash
+      env:
+        NEW_TAG: ${{ inputs.new_tag }}
+        PREV_TAG: ${{ inputs.previous_tag }}
+        MODULE: ${{ inputs.module }}
+        REPO: ${{ github.repository }}
+        SHA: ${{ github.sha }}
+      run: |
+        set -euo pipefail
+
+        if [[ -z "$NEW_TAG" || -z "$MODULE" ]]; then
+          echo "ERROR: new_tag and module are required"
+          exit 1
+        fi
+
+        SHORT_SHA=$(echo "$SHA" | cut -c1-7)
+
+        if [[ -z "$PREV_TAG" ]]; then
+          CHANGELOG_URL="https://github.com/${REPO}/commits/${NEW_TAG}"
+          TAG_EVOLUTION="Initial Release ➡️ \`${NEW_TAG}\`"
+        else
+          CHANGELOG_URL="https://github.com/${REPO}/compare/${PREV_TAG}...${NEW_TAG}"
+          TAG_EVOLUTION="\`${PREV_TAG}\` ➡️ \`${NEW_TAG}\`"
+        fi
+
+        {
+          echo "release_name=$NEW_TAG"
+          echo "changelog_url=$CHANGELOG_URL"
+          echo "tag_evolution=$TAG_EVOLUTION"
+          echo "short_sha=$SHORT_SHA"
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Create prerelease
+      uses: softprops/action-gh-release@v2
+      with:
+        token: ${{ inputs.github_token }}
+        tag_name: ${{ inputs.new_tag }}
+        name: ${{ steps.meta.outputs.release_name }}
+        target_commitish: ${{ github.sha }}
+        prerelease: true
+        make_latest: false
+        generate_release_notes: false
+        body: |
+          ## 🚀 Release Information
+          
+          We are thrilled to announce that a new version of ${{ inputs.module }} has been released.
+          
+          ### 📦 Deployment Details
+          
+          | Property | Value |
+          | :--- | :--- |
+          | **Module** | `${{ inputs.module }}` |
+          | **Tag Evolution** | ${{ steps.meta.outputs.tag_evolution }} |
+          | **Branch** | `${{ github.ref_name }}` |
+          | **Commit** | `${{ steps.meta.outputs.short_sha }}` |
+          | **Triggered By** | @${{ github.actor }} |
+          
+          ---
+          
+          ### 🔍 Changelog
+          For a detailed list of commits and pull requests included in this build, check the **[Full Comparison Diff](${{ steps.meta.outputs.changelog_url }})**.
