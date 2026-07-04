@@ -1,0 +1,136 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: my-app-route
+  namespace: default
+  labels:
+    app: my-app
+spec:
+  parentRefs:
+    - name: my-gateway
+      namespace: default
+  hostnames:
+    - "my-app.exemple.com"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: my-app-service
+          port: 80
+
+---
+
+# ==========================================
+# STRATEGY 1: Traffic Splitting / Canary Deployments
+# ==========================================
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: my-app-canary
+  namespace: default
+spec:
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - "my-app.example.com"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        # 90% of the traffic goes to the stable production version
+        - name: my-app-stable
+          port: 80
+          weight: 90
+        # 10% of the traffic is routed to the new canary version
+        - name: my-app-canary
+          port: 80
+          weight: 10
+
+---
+# ==========================================
+# STRATEGY 2: Header-Based Routing (A/B Testing)
+# ==========================================
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: my-app-header-routing
+  namespace: default
+spec:
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - "my-app.example.com"
+  rules:
+    # Rule 1: Matches if the custom header 'X-Version: beta' is present
+    - matches:
+        - headers:
+            - name: x-version
+              value: beta
+      backendRefs:
+        - name: my-app-beta
+          port: 80
+    # Rule 2: Default fallback rule for everyone else
+    - backendRefs:
+        - name: my-app-stable
+          port: 80
+
+---
+# ==========================================
+# STRATEGY 3: Request Redirect (Path Migration / Link Move)
+# Used to map multiple service to the same URI
+# ==========================================
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: my-app-redirect
+  namespace: default
+spec:
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - "my-app.example.com"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /old-api
+      # Filters modify the request lifecycle. Here we issue a 301 Redirect.
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            hostname: "api.example.com"
+            statusCode: 301
+
+---
+# ==========================================
+# STRATEGY 4: URL Rewriting (Path Masking)
+# ==========================================
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: my-app-rewrite
+  namespace: default
+spec:
+  parentRefs:
+    - name: my-gateway
+  hostnames:
+    - "my-app.example.com"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /login
+      filters:
+        # Rewrites '/login' to '/auth/v2/login' before hitting the pod
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /auth/v2/login
+      backendRefs:
+        - name: my-auth-service
+          port: 80
