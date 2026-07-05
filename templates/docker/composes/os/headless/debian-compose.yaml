@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  debian:
+    image: debian:latest
+    container_name: os_debian
+    stdin_open: true
+    tty: true

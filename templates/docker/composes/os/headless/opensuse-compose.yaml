@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  opensuse:
+    image: opensuse/leap:latest
+    container_name: os_opensuse
+    stdin_open: true
+    tty: true

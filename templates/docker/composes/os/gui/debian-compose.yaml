@@ -1,0 +1,14 @@
+services:
+  debian-desktop:
+    image: ghcr.io/consol/docker-headless-vnc-container/debian-xfce-vnc:latest
+    container_name: debian_gui
+    platform: linux/amd64
+    ports:
+      - "8080:6901"
+      - "5901:5901"
+    environment:
+      - VNC_PW=password123
+      - VNC_RESOLUTION=1280x1024
+    shm_size: "2gb"
+    privileged: true
+    restart: unless-stopped

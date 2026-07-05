@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  oracle:
+    image: oraclelinux:9
+    container_name: os_oracle
+    stdin_open: true
+    tty: true

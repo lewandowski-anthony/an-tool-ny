@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  ubuntu-desktop:
+    image: dorowu/ubuntu-desktop-lxde-vnc:latest
+    container_name: ubuntu_gui
+    ports:
+      - "8080:80"
+      - "5900:5900"
+    environment:
+      - VNC_PASSWORD=secret_password
+    volumes:
+      - ubuntu_data:/root
+    shm_size: "3gb"
+    privileged: true
+    restart: unless-stopped
+
+volumes:
+  ubuntu_data:

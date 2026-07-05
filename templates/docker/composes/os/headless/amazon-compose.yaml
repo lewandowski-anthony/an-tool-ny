@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  amazon:
+    image: amazonlinux:latest
+    container_name: os_amazon
+    stdin_open: true
+    tty: true

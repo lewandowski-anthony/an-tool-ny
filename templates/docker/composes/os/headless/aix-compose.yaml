@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  aix:
+    image: ibmcom/aix-sandbox:latest
+    container_name: os_aix
+    stdin_open: true
+    tty: true

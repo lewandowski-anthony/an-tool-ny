@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  arch:
+    image: archlinux:latest
+    container_name: os_arch
+    stdin_open: true
+    tty: true
