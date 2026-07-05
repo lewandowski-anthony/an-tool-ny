@@ -2,8 +2,8 @@
 
 set -uo pipefail
 
-RESULT_DIR="results"
-mkdir -p "$RESULT_DIR"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+OUTPUT_DIR=""
 
 DB_HOST=""
 DB_PORT=""
@@ -23,6 +23,7 @@ usage() {
     echo "  --name <db_name>     PostgreSQL database name"
     echo "  --schema <schema>    PostgreSQL schema name (default: public)"
     echo "  --rows <count>       Number of rows to generate per table (default: 1)"
+    echo "  -o, --output <dir>   Output directory (Default: 'results' folder in script root)"
     exit 1
 }
 
@@ -35,6 +36,7 @@ while [[ $# -gt 0 ]]; do
         --name) DB_NAME="$2"; shift 2 ;;
         --schema) DB_SCHEMA="$2"; shift 2 ;;
         --rows) ROWS="$2"; shift 2 ;;
+        -o|--output) OUTPUT_DIR="$2"; shift 2 ;;
         -h|--help) usage ;;
         *) echo "Unknown option: $1"; usage ;;
     esac
@@ -49,10 +51,13 @@ if ! [[ "$ROWS" =~ ^[1-9][0-9]*$ ]]; then
     exit 1
 fi
 
-COLUMNS_META_FILE="${RESULT_DIR}/${DB_NAME}_columns.txt"
-FK_MAP_FILE="${RESULT_DIR}/${DB_NAME}_fk_map.txt"
-CHECK_MAP_FILE="${RESULT_DIR}/${DB_NAME}_check_map.txt"
-OUTPUT_FILE="${RESULT_DIR}/${DB_NAME}_random_data.sql"
+OUTPUT_DIR=${OUTPUT_DIR:-"${SCRIPT_DIR}/results"}
+mkdir -p "$OUTPUT_DIR"
+
+COLUMNS_META_FILE="${OUTPUT_DIR}/${DB_NAME}_columns.txt"
+FK_MAP_FILE="${OUTPUT_DIR}/${DB_NAME}_fk_map.txt"
+CHECK_MAP_FILE="${OUTPUT_DIR}/${DB_NAME}_check_map.txt"
+OUTPUT_FILE="${OUTPUT_DIR}/${DB_NAME}_random_data.sql"
 
 cleanup_metadata() {
     rm -f "$COLUMNS_META_FILE" "$FK_MAP_FILE" "$CHECK_MAP_FILE"

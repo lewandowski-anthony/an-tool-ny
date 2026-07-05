@@ -10,19 +10,18 @@ NC='\033[0m'
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_DIR=""
-BACKUP_DIR=""
+OUTPUT_DIR=""
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
-        --repo) REPO_DIR="$2"; shift ;;
-        --dest) BACKUP_DIR="$2"; shift ;;
-        *) exit 1 ;;
+        --repo) REPO_DIR="$2"; shift 2 ;;
+        -o|--output) OUTPUT_DIR="$2"; shift 2 ;;
+        *) echo "Unknown option: $1"; exit 1 ;;
     esac
-    shift
 done
 
 REPO_DIR=${REPO_DIR:-$(pwd)}
-BACKUP_DIR=${BACKUP_DIR:-$SCRIPT_DIR/results}
+OUTPUT_DIR=${OUTPUT_DIR:-$SCRIPT_DIR/results}
 
 if [ -d "$REPO_DIR" ]; then
     cd "$REPO_DIR"
@@ -38,7 +37,7 @@ fi
 
 REPO_NAME=$(basename "$(pwd)")
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-BUNDLE_PATH="$BACKUP_DIR/${REPO_NAME}_unpushed_${TIMESTAMP}.bundle"
+BUNDLE_PATH="$OUTPUT_DIR/${REPO_NAME}_unpushed_${TIMESTAMP}.bundle"
 
 UNPUSHED_BRANCHES=""
 
@@ -61,7 +60,7 @@ if [ -z "$UNPUSHED_BRANCHES" ]; then
     exit 0
 fi
 
-mkdir -p "$BACKUP_DIR"
+mkdir -p "$OUTPUT_DIR"
 
 echo -e "${BLUE}ℹFound unpushed/local branches:${NC} $UNPUSHED_BRANCHES"
 echo -e "${YELLOW}Packaging into a Git bundle...${NC}"

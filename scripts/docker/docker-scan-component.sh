@@ -1,36 +1,23 @@
 #!/bin/bash
 
-################################################################################
-#  PREREQUISITE: TRIVY SCANNER INSTALLATION
-################################################################################
-#
-# macOS :
-#    brew install aquasecurity/trivy/trivy
-#
-# Linux (Debian/Ubuntu) :
-#    sudo apt-get install wget apt-transport-https gnupg lsb-release
-#    wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
-#    echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb stable main" | sudo tee /etc/apt/sources.list.d/trivy.list
-#    sudo apt-get update && sudo apt-get install trivy
-#
-# Linux (RedHat/CentOS/UBI) :
-#    Configure the Trivy YUM repository located at aquasecurity.github.io
-#    Then execute: sudo yum install -y trivy
-#
-# Windows (PowerShell) :
-#    choco install trivy
-#    # OR
-#    scoop install trivy
-#
-################################################################################
-
 set -uo pipefail
 
-RESULT_DIR="results"
-RESULT_FILE="${RESULT_DIR}/docker_scan_results.txt"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TARGET=""
+OUTPUT_DIR=""
 DEFAULT_VERSION="1.0.0"
 
-mkdir -p "${RESULT_DIR}"
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -o|--output) OUTPUT_DIR="$2"; shift 2 ;;
+        *) TARGET="$1"; shift ;;
+    esac
+done
+
+OUTPUT_DIR=${OUTPUT_DIR:-"${SCRIPT_DIR}/results"}
+RESULT_FILE="${OUTPUT_DIR}/docker_scan_results.txt"
+
+mkdir -p "${OUTPUT_DIR}"
 rm -f "$RESULT_FILE"
 
 scan_directory() {
@@ -73,7 +60,6 @@ scan_directory() {
 
         echo "Scanning Docker image $full_image_name with local Trivy..."
 
-        # FIX ENTREPRISE: Utilisation du binaire local + bypass SSL pour la DB de failles
         trivy image --insecure "$full_image_name" >> "$RESULT_FILE" 2>&1 || true
 
         echo "[SUCCESS] Scan completed for $full_image_name" >> "$RESULT_FILE"
@@ -82,8 +68,7 @@ scan_directory() {
     fi
 }
 
-if [ "${1:-}" ]; then
-    TARGET="$1"
+if [ -n "$TARGET" ]; then
     if [ "$(basename "$TARGET")" = "Dockerfile" ] && [ -f "$TARGET" ]; then
         TARGET_DIR="$(dirname "$TARGET")/"
     elif [ -d "$TARGET" ]; then

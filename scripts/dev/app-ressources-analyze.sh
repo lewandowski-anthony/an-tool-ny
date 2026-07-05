@@ -7,6 +7,7 @@ MODE="local"
 POD_INPUT=""
 NAMESPACE=""
 KUBE_CONTEXT=""
+OUTPUT_DIR=""
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -14,13 +15,14 @@ while [[ $# -gt 0 ]]; do
         --pod) POD_INPUT="$2"; shift 2 ;;
         --namespace|-n) NAMESPACE="$2"; shift 2 ;;
         --context) KUBE_CONTEXT="$2"; shift 2 ;;
+        -o|--output) OUTPUT_DIR="$2"; shift 2 ;;
         *) echo "Unknown argument: $1"; exit 1 ;;
     esac
 done
 
 if [ "$MODE" != "k8s" ] || [ -z "$POD_INPUT" ] || [ -z "$NAMESPACE" ]; then
     echo "Error: This analyzer requires Kubernetes mode."
-    echo "Usage: $0 --k8s --pod <pod_name_or_regex> --namespace <namespace> [--context <context>]"
+    echo "Usage: $0 --k8s --pod <pod_name_or_regex> --namespace <namespace> [--context <context>] [-o <output_dir>]"
     exit 1
 fi
 
@@ -37,8 +39,9 @@ fi
 
 echo "Found ${#MATCHING_PODS[@]} pod(s) to analyze."
 
-mkdir -p "${SCRIPT_DIR}/results"
-REPORT_FILE="${SCRIPT_DIR}/results/universal_analysis_${POD_INPUT//[^a-zA-Z0-9]/_}_${TIMESTAMP}.txt"
+OUTPUT_DIR=${OUTPUT_DIR:-"${SCRIPT_DIR}/results"}
+mkdir -p "$OUTPUT_DIR"
+REPORT_FILE="${OUTPUT_DIR}/universal_analysis_${POD_INPUT//[^a-zA-Z0-9]/_}_${TIMESTAMP}.txt"
 
 {
     echo "┌────────────────────────────────────────────────────────┐"
@@ -116,7 +119,7 @@ for POD_NAME in "${MATCHING_PODS[@]}"; do
                 echo "$JVM_HEAP" | head -n 15 | sed 's/^/    /'
                 echo ""
                 echo "  [JVM - Active Execution Hotspots]"
-                echo "$JVM_THREADS" | grep "at " | grep -v -E "java.lang|java.util|sun.|jdk.|org.apache.tomcat" | sort | uniq -c | sort -nr | head -n 8 | awk '{print "    Active Count: " $1 " \t-> " $2 " " $3}'
+                echo "$JVM_THREADS" | grep "at " | grep -v -E "java.lang|java.util|sun.|jdk.|org.apache.tomcat" | sort | uniq -c | sort -nr | head -n 8 | awk '{print "     Active Count: " $1 " \t-> " $2 " " $3}'
             } >> "$REPORT_FILE"
         else
             echo "    [Warning] Java process found but JDK diagnosis tools (jcmd/jmap) are missing." >> "$REPORT_FILE"
@@ -128,17 +131,17 @@ for POD_NAME in "${MATCHING_PODS[@]}"; do
 
         {
             echo "  [Traffic & Endpoint Analysis]"
-            if [ -n "$TOP_ASSETS" ]; then echo "$TOP_ASSETS" | awk '{print "    Hits: " $1 " \t-> " $2}'; else echo "    No asset/routing logs found."; fi
+            if [ -n "$TOP_ASSETS" ]; then echo "$TOP_ASSETS" | awk '{print "     Hits: " $1 " \t-> " $2}'; else echo "     No asset/routing logs found."; fi
             echo ""
             echo "  [Top Error Patterns & Logs]"
-            if [ -n "$ERRORS" ]; then echo "$ERRORS" | sed 's/^/    /'; else echo "    Logs look clean. No frequent errors detected."; fi
+            if [ -n "$ERRORS" ]; then echo "$ERRORS" | sed 's/^/    /'; else echo "     Logs look clean. No frequent errors detected."; fi
         } >> "$REPORT_FILE"
     fi
 
     {
         echo ""
         echo "  [Internal Running Processes]"
-        if [ -n "$FRONT_PROCESSES" ]; then echo "$FRONT_PROCESSES" | head -n 8 | sed 's/^/    /'; else echo "    'ps'/'top' commands not available inside this slim container."; fi
+        if [ -n "$FRONT_PROCESSES" ]; then echo "$FRONT_PROCESSES" | head -n 8 | sed 's/^/    /'; else echo "     'ps'/'top' commands not available inside this slim container."; fi
         echo "──────────────────────────────────────────────────────────"
         echo ""
     } >> "$REPORT_FILE"

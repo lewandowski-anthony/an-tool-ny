@@ -1,10 +1,11 @@
 #!/bin/bash
 
-SCRIPT_DIR=$(dirname "$0")
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 
 NAMESPACE=""
 KUBE_CONTEXT=""
+OUTPUT_DIR=""
 
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -21,6 +22,7 @@ while [[ $# -gt 0 ]]; do
         --namespace|-n)     NAMESPACE="$2"; shift 2 ;;
         --context=*)        KUBE_CONTEXT="${1#*=}"; shift ;;
         --context)          KUBE_CONTEXT="$2"; shift 2 ;;
+        -o|--output)        OUTPUT_DIR="$2"; shift 2 ;;
         *) echo -e "${RED}Unknown argument: $1${NC}"; exit 1 ;;
     esac
 done
@@ -33,8 +35,9 @@ CURRENT_CONTEXT=$(kubectl config current-context)
 CURRENT_NS=$( [ -n "$NAMESPACE" ] && echo "$NAMESPACE" || kubectl config view --minify --output 'jsonpath={..namespace}' 2>/dev/null )
 CURRENT_NS=${CURRENT_NS:-default}
 
-mkdir -p "${SCRIPT_DIR}/results"
-REPORT_FILE="${SCRIPT_DIR}/results/namespace_audit_${CURRENT_NS}_${TIMESTAMP}.txt"
+OUTPUT_DIR="${OUTPUT_DIR:-${SCRIPT_DIR}/results}"
+mkdir -p "$OUTPUT_DIR"
+REPORT_FILE="${OUTPUT_DIR}/namespace_audit_${CURRENT_NS}_${TIMESTAMP}.txt"
 
 print_section() {
     local title=$1
@@ -96,7 +99,7 @@ print_section() {
         for SEC in $SECRET_LIST; do
             SEC_TYPE=$(kubectl get secret "$SEC" -n "$CURRENT_NS" -o jsonpath='{.type}' 2>/dev/null)
             echo -e "${BOLD}Secret:${NC} ${PURPLE}$SEC${NC} (${YELLOW}$SEC_TYPE${NC})"
-            kubectl get secret "$SEC" -n "$CURRENT_NS" -o json 2>/dev/null | jq -r '.data | to_entries[] | "   ├── \(.key): \(.value | @base64d)"' 2>/dev/null || echo "   [Error decoding or empty data]"
+            kubectl get secret "$SEC" -n "$CURRENT_NS" -o json 2>/dev/null | jq -r '.data | to_entries[] | "    ├── \(.key): \(.value | @base64d)"' 2>/dev/null || echo "    [Error decoding or empty data]"
             echo ""
         done
     else
@@ -121,8 +124,8 @@ print_section() {
     echo ""
 
     print_section "CONFIGURATIONS & STORAGE" "$NC"
-    echo -e "  • ConfigMaps : ${YELLOW}$(kubectl get configmap -n "$CURRENT_NS" --no-headers 2>/dev/null | wc -l | xargs)${NC}"
-    echo -e "  • PVCs       : ${YELLOW}$(kubectl get pvc -n "$CURRENT_NS" --no-headers 2>/dev/null | wc -l | xargs)${NC}"
+    echo -e "  • ConfigMaps : ${YELLOW}(kubectl get configmap -n "$CURRENT_NS" --no-headers 2>/dev/null | wc -l | xargs)${NC}"
+    echo -e "  • PVCs       : ${YELLOW}(kubectl get pvc -n "$CURRENT_NS" --no-headers 2>/dev/null | wc -l | xargs)${NC}"
     echo ""
     if [ "$(kubectl get pvc -n "$CURRENT_NS" --no-headers 2>/dev/null | wc -l)" -gt 0 ]; then
         kubectl get pvc -n "$CURRENT_NS" | sed 's/^/  /'

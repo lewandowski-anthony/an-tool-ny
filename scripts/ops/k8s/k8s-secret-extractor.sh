@@ -1,9 +1,9 @@
 #!/bin/bash
 
-SCRIPT_DIR=$(dirname "$0")
-
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 NAMESPACE=""
 KUBE_CONTEXT=""
+OUTPUT_DIR=""
 
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -18,6 +18,7 @@ while [[ $# -gt 0 ]]; do
         --namespace|-n)     NAMESPACE="$2"; shift 2 ;;
         --context=*)        KUBE_CONTEXT="${1#*=}"; shift ;;
         --context)          KUBE_CONTEXT="$2"; shift 2 ;;
+        -o|--output)        OUTPUT_DIR="$2"; shift 2 ;;
         *) echo -e "${RED}Unknown argument: $1${NC}"; exit 1 ;;
     esac
 done
@@ -49,7 +50,7 @@ select TARGET_DEPLOYMENT in "${DEPLOYMENTS[@]}"; do
     fi
 done
 
-OUTPUT_DIR="${SCRIPT_DIR}/results"
+OUTPUT_DIR="${OUTPUT_DIR:-${SCRIPT_DIR}/results}"
 mkdir -p "$OUTPUT_DIR"
 
 SAFE_CONTEXT=$(echo "$CURRENT_CONTEXT" | sed 's/[^a-zA-Z0-9_-]/_/g')
@@ -118,7 +119,7 @@ echo "$POD_JSON" | jq -r '.spec.containers[].env[]? | select(.valueFrom.configMa
     fi
 done
 
-if [ -s "$ENV_FILE" ]; then
+if [s "$ENV_FILE" ]; then
     sed -i.bak '/^# ===/N;/^\n$/D' "$ENV_FILE" 2>/dev/null && rm "${ENV_FILE}.bak" 2>/dev/null
     echo -e "   └── ${GREEN}Saved to:${NC} ${ENV_FILE}"
 else

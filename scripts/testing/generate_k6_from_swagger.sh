@@ -6,11 +6,10 @@ OUTPUT_DIR=""
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
-        --swagger) SWAGGER_INPUT="$2"; shift ;;
-        --output) OUTPUT_DIR="$2"; shift ;;
+        --swagger) SWAGGER_INPUT="$2"; shift 2 ;;
+        -o|--output) OUTPUT_DIR="$2"; shift 2 ;;
         *) exit 1 ;;
     esac
-    shift
 done
 
 if [ -z "$SWAGGER_INPUT" ]; then
@@ -18,6 +17,7 @@ if [ -z "$SWAGGER_INPUT" ]; then
 fi
 
 OUTPUT_DIR=${OUTPUT_DIR:-"$SCRIPT_DIR/results"}
+mkdir -p "$OUTPUT_DIR"
 
 if ! command -v npx &> /dev/null; then
     exit 1
@@ -65,7 +65,6 @@ export const options = {
 };
 
 export default function () {
-    // Example: userclient.getUsers();
     sleep(1);
 }
 EOF

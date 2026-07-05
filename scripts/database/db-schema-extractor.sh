@@ -2,8 +2,8 @@
 
 set -uo pipefail
 
-RESULT_DIR="results"
-mkdir -p "$RESULT_DIR"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+OUTPUT_DIR=""
 
 DB_TYPE=""
 DB_HOST=""
@@ -21,9 +21,7 @@ usage() {
     echo "  --user <user>        Database username"
     echo "  --pass <password>    Database password"
     echo "  --name <db_name>     Database name (SID/Service Name for Oracle)"
-    echo ""
-    echo "Example:"
-    echo "  $0 --type mongo --host localhost --port 27017 --user root --pass secret --name smartsupply"
+    echo "  -o, --output <dir>   Output directory (Default: 'results' folder in script root)"
     exit 1
 }
 
@@ -35,6 +33,7 @@ while [[ $# -gt 0 ]]; do
         --user) DB_USER="$2"; shift 2 ;;
         --pass) DB_PASS="$2"; shift 2 ;;
         --name) DB_NAME="$2"; shift 2 ;;
+        -o|--output) OUTPUT_DIR="$2"; shift 2 ;;
         -h|--help) usage ;;
         *) echo "Unknown option: $1"; usage ;;
     esac
@@ -45,7 +44,10 @@ if [[ -z "$DB_TYPE" || -z "$DB_HOST" || -z "$DB_PORT" || -z "$DB_USER" || -z "$D
     usage
 fi
 
-OUTPUT_FILE="${RESULT_DIR}/${DB_NAME}_schema.sql"
+OUTPUT_DIR=${OUTPUT_DIR:-"${SCRIPT_DIR}/results"}
+mkdir -p "$OUTPUT_DIR"
+
+OUTPUT_FILE="${OUTPUT_DIR}/${DB_NAME}_schema.sql"
 rm -f "$OUTPUT_FILE"
 
 echo "Connecting to $DB_TYPE ($DB_NAME) on $DB_HOST:$DB_PORT..."
@@ -71,7 +73,7 @@ elif [ "$DB_TYPE" = "oracle" ]; then
         exp ${DB_USER}/${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME} file=/dev/stdout rows=n 2>/dev/null > "$OUTPUT_FILE"
 
 elif [ "$DB_TYPE" = "mongo" ]; then
-    OUTPUT_FILE="${RESULT_DIR}/${DB_NAME}_mongo_schema.json"
+    OUTPUT_FILE="${OUTPUT_DIR}/${DB_NAME}_mongo_schema.json"
     echo "Extracting MongoDB metadata (Collections & Indexes structure)..."
     docker run --rm --network host \
         mongo:latest \

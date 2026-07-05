@@ -4,7 +4,7 @@
 
 # --- CORE PATHS ---
 # Redefine this variable with your path of the tool box if necessary
-AN_TOOLS_DIR="$HOME/an-tool-ny"
+AN_TOOLS_DIR="$HOME/Developer/an-tool-ny"
 AN_TOOLS_SCRIPT_DIR="$AN_TOOLS_DIR/scripts"
 
 # --- MAVEN (Daily time-savers) ---
@@ -46,6 +46,11 @@ alias myip="curl ifconfig.me && echo"
 alias db-extract="$AN_TOOLS_SCRIPT_DIR/database/db-schema-extractor.sh"
 alias pg-gen="$AN_TOOLS_SCRIPT_DIR/database/pg-data-generator.sh"
 
+# --- AN-TOOL-NY: API CONVERTERS ---
+alias api-to-bruno="$AN_TOOLS_SCRIPT_DIR/api/openapi-to-bruno.sh"
+alias api-to-postman="$AN_TOOLS_SCRIPT_DIR/api/openapi-to-postman.sh"
+alias api-to-intellij="$AN_TOOLS_SCRIPT_DIR/api/openapi-to-intellij.sh"
+
 # --- AN-TOOL-NY: DOCKER AUTOMATION ---
 alias docker-clean="$AN_TOOLS_SCRIPT_DIR/docker/docker-clean-containers.sh"
 alias docker-scan="$AN_TOOLS_SCRIPT_DIR/docker/docker-scan-component.sh"
@@ -54,9 +59,10 @@ alias docker-scan="$AN_TOOLS_SCRIPT_DIR/docker/docker-scan-component.sh"
 alias k6-gen="$AN_TOOLS_SCRIPT_DIR/testing/generate_k6_from_swagger.sh"
 alias jwt-decode="$AN_TOOLS_SCRIPT_DIR/iam/jwt-decoder.sh"
 
-# --- AN-TOOL-NY: DEVELOPMENT ---
+# --- AN-TOOL-NY: DEVELOPMENT & LOCAL OPS ---
 alias app-analyze="$AN_TOOLS_SCRIPT_DIR/dev/app-ressources-analyze.sh"
 alias port-kill="$AN_TOOLS_SCRIPT_DIR/ops/local/port-killer.sh"
+alias kafka-cert-check="$AN_TOOLS_SCRIPT_DIR/ops/local/check-kafka-certificates.sh"
 
 # --- AN-TOOL-NY: GIT DevOps ---
 alias git-backup-wip="$AN_TOOLS_SCRIPT_DIR/git/git-backup-unpushed.sh"
@@ -73,6 +79,10 @@ alias k8s-routes="$AN_TOOLS_SCRIPT_DIR/ops/k8s/k8s-httproute-mapper.sh"
 alias k8s-kafka-test="$AN_TOOLS_SCRIPT_DIR/ops/k8s/k8s-pod-kafka-test.sh"
 alias k8s-pod-clean="$AN_TOOLS_SCRIPT_DIR/ops/k8s/k8s-pod-cleaner.sh"
 alias k8s-restart="$AN_TOOLS_SCRIPT_DIR/ops/k8s/k8s-smart-restart.sh"
+
+# --- AN-TOOL-NY: LOCAL SYSTEM & MAINTENANCE ---
+alias sys-install="$AN_TOOLS_SCRIPT_DIR/ops/local/install-dependencies.sh"
+alias sys-update="$AN_TOOLS_SCRIPT_DIR/ops/local/update-dependencies.sh"
 
 # --- AN-TOOL-NY SYSTEM CONTROL ---
 alias an-tool-ny-cd="cd \$AN_TOOLS_DIR"
