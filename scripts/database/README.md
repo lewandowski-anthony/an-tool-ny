@@ -1,6 +1,6 @@
 # SQL Utilities Toolkit
 
-Welcome to the **SQL Utilities Toolkit**. This repository contains a collection of lightweight, containerized Bash scripts designed to streamline database management, schema inspection, and test data generation.
+Welcome to the **SQL Utilities Toolkit**. This repository contains a collection of lightweight, containerized Bash scripts designed to streamline database management, schema inspection, test data generation, and migration verification.
 
 By leveraging ephemeral Docker containers with host networking, these utilities eliminate the need to install local database clients (like `psql`, `mysqldump`, or Oracle clients) while ensuring full compatibility with your local, cloud, or VPN-isolated databases.
 
@@ -56,7 +56,46 @@ All extracted schemas are saved safely within the `results/` directory:
 
 ---
 
-## 2. PostgreSQL Random Data Generator (`pg-data-generator.sh`)
+## 2. Database Rollback Checker (`db-rollback-checker.sh`)
+
+This utility provides automated validation for database schemas and rollback procedures. It safely executes your sequential schema alterations within an isolated, short-lived PostgreSQL container and evaluates whether your rollback scripts can perfectly restore the database to its baseline state.
+
+### Key Features
+* **Isolated Validation**: Automatically spins up a temporary PostgreSQL Docker container to execute migrations, ensuring no side effects on your shared development databases.
+* **Sequential Migration Application**: Reads and orders all forward SQL migration scripts alphabetically from a given directory to reproduce a deterministic target database state.
+* **Integrity Auditing**: Applies the targeted backward rollback script and queries the system catalogs to ensure structural changes are completely reverted.
+* **Orphan Detection**: Fails explicitly with an exit code 1 if any orphaned tables or objects remain in the schema after the rollback operation has been executed.
+
+### Usage Guide
+
+#### Command Options
+* `--migration-dir` : Path to the directory containing baseline/forward SQL files (Required)
+* `--rollback-file` : Path to the specific SQL rollback file to test (Optional)
+* `--schema`         : Target database schema to use or create (Default: `public`)
+* `--port`           : Local port to bind the temporary container (Default: `5543`)
+* `--user`           : Temporary database username (Default: `postgres`)
+* `--pass`           : Temporary database password (Default: `temp_secret_password_123`)
+* `--name`           : Temporary database name (Default: `validator_db`)
+
+#### Concrete Examples
+
+* **Case 1: Validate Forward Migrations Sequence Only**
+  ```bash
+  ./db-rollback-checker.sh \
+    --migration-dir ./migrations/v1.2.0
+  ```
+
+* **Case 2: Complete Backward Compatibility and Reversion Test**
+  ```bash
+  ./db-rollback-checker.sh \
+    --migration-dir ./migrations/v1.2.0 \
+    --rollback-file ./migrations/v1.2.0/rollback_v1.2.0.sql \
+    --schema core_service
+  ```
+
+---
+
+## 3. PostgreSQL Random Data Generator (`pg-data-generator.sh`)
 
 This utility reads a live PostgreSQL schema and automatically crafts a ready-to-run `INSERT` SQL script filled with type-compliant mock data. It intelligently maps relationships so you can populate blank environments in seconds.
 
