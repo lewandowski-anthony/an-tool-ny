@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  mssql:
+    container_name: myapp_mssql
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:-ChangeMe123!}
+    volumes:
+      - mssql_data:/var/opt/mssql
+    ports:
+      - "15439:1433"
+    networks:
+      - database_net
+    restart: unless-stopped
+
+networks:
+  database_net:
+    driver: bridge
+
+volumes:
+  mssql_data:

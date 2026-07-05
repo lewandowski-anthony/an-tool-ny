@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  mariadb:
+    container_name: myapp_mariadb
+    image: mariadb:11.4
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-changeme}
+      MARIADB_DATABASE: ${MARIADB_DATABASE:-myapp_db}
+      MARIADB_USER: ${MARIADB_USER:-myapp_user}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:-userpassword}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    ports:
+      - "15440:3306"
+    networks:
+      - database_net
+    restart: unless-stopped
+
+networks:
+  database_net:
+    driver: bridge
+
+volumes:
+  mariadb_data:

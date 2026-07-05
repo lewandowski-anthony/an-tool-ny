@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  oracle:
+    container_name: myapp_oracle
+    image: gvenzl/oracle-xe:21-slim
+    environment:
+      ORACLE_PASSWORD: ${ORACLE_PASSWORD:-ChangeMe123!}
+      APP_USER: ${ORACLE_USER:-myapp_user}
+      APP_PASSWORD: ${ORACLE_APP_PASSWORD:-userpassword}
+    volumes:
+      - oracle_data:/apps/oracle/oradata
+    ports:
+      - "15441:1521"
+    networks:
+      - database_net
+    restart: unless-stopped
+
+networks:
+  database_net:
+    driver: bridge
+
+volumes:
+  oracle_data:
