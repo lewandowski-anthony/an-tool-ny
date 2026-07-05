@@ -95,7 +95,52 @@ This utility provides automated validation for database schemas and rollback pro
 
 ---
 
-## 3. PostgreSQL Random Data Generator (`pg-data-generator.sh`)
+## 3. Database Migration Checksum Validator (`db-migration-checksum-checker.sh`)
+
+This utility cross-references local schema definition scripts against live target environments to find discrepancies or illegal structural modifications within previously applied records. It helps maintain absolute deployment synchronicity across continuous delivery environments.
+
+### Key Features
+* **Dual Engine Integration**: Audits deployment metadata maps configured via either **Flyway** (`flyway_schema_history`) or **Liquibase** (`databasechangelog`).
+* **Non-Invasive Introspection**: Validates parity tables over standard Dockerized network calls without pushing new files or staging dynamic alterations onto remote endpoints.
+* **Audit Failure Flags**: Immediately appends discrepancies onto custom trace tables and returns exit code 1 if an artifact has been altered post-deployment.
+
+### Usage Guide
+
+#### Command Options
+* `--migration-dir` : Directory containing your local SQL migration files (Required)
+* `--tool`          : Migration framework type (`flyway` or `liquibase`) (Default: `flyway`)
+* `--host`          : Target remote database host address (Default: `localhost`)
+* `--port`          : Target remote database port (Default: `5432`)
+* `--user`          : Database username (Default: `postgres`)
+* `--pass`          : Database password (Default: `changeme`)
+* `--name`          : Database name (Default: `smartsupply`)
+* `--schema`        : Database schema name (Default: `public`)
+
+#### Concrete Examples
+
+* **Case 1: Validate Flyway Checklist Parity**
+  ```bash
+  ./db-migration-checksum-checker.sh \
+    --migration-dir ./db/migrations \
+    --tool flyway \
+    --host pg-prod-replica.company.internal \
+    --name production_db
+  ```
+
+* **Case 2: Validate Liquibase Registry Logs**
+  ```bash
+  ./db-migration-checksum-checker.sh \
+    --migration-dir ./db/changelogs \
+    --tool liquibase \
+    --host localhost \
+    --port 5432 \
+    --name dev_workspace_db \
+    --schema inventory
+  ```
+
+---
+
+## 4. PostgreSQL Random Data Generator (`pg-data-generator.sh`)
 
 This utility reads a live PostgreSQL schema and automatically crafts a ready-to-run `INSERT` SQL script filled with type-compliant mock data. It intelligently maps relationships so you can populate blank environments in seconds.
 
