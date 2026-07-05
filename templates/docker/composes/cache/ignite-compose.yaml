@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  ignite:
+    container_name: myapp_ignite
+    image: apacheignite/ignite:2.16.0
+    ports:
+      - "15444:10800"
+    networks:
+      - database_net
+    restart: unless-stopped
+
+networks:
+  database_net:
+    driver: bridge

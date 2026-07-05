@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  hazelcast:
+    container_name: myapp_hazelcast
+    image: hazelcast/hazelcast:5.5
+    ports:
+      - "15443:5701"
+    networks:
+      - database_net
+    restart: unless-stopped
+
+  hazelcast-gui:
+    container_name: myapp_hazelcast_gui
+    image: hazelcast/management-center:5.5
+    ports:
+      - "15446:8080"
+    networks:
+      - database_net
+    restart: unless-stopped
+
+networks:
+  database_net:
+    driver: bridge

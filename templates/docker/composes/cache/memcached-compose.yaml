@@ -1,0 +1,13 @@
+services:
+  memcached:
+    container_name: myapp_memcached
+    image: memcached:1.6
+    ports:
+      - "15442:11211"
+    networks:
+      - database_net
+    restart: unless-stopped
+
+networks:
+  database_net:
+    driver: bridge

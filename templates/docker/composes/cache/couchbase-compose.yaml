@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  couchbase:
+    container_name: myapp_couchbase
+    image: couchbase:community-7.2.0
+    ports:
+      - "15445:8091"
+      - "11210:11210"
+    volumes:
+      - couchbase_data:/opt/couchbase/var
+    networks:
+      - database_net
+    restart: unless-stopped
+
+networks:
+  database_net:
+    driver: bridge
+
+volumes:
+  couchbase_data:
