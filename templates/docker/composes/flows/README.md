@@ -18,6 +18,7 @@ both **Apache Kafka** (distributed event streaming, schema registry, and third-p
 | **AKHQ UI**         | `docker-compose-kafka-akhq.yaml` | `8080`              | Advanced web console to manage topics, consumer groups, and schemas.        |
 | **Kafka UI**        | `docker-compose-kafka-kui.yaml`  | `8080`              | Alternative lightweight and dynamic web console for cluster monitoring.     |
 
+
 ### ActiveMQ Artemis Ecosystem
 
 | Component            | Compose File                   | Web UI Port | Protocol Ports                 | Automatically Initialized Queues                      |
