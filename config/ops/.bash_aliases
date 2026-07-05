@@ -56,7 +56,7 @@ alias docker-clean="$AN_TOOLS_SCRIPT_DIR/docker/docker-clean-containers.sh"
 alias docker-scan="$AN_TOOLS_SCRIPT_DIR/docker/docker-scan-component.sh"
 
 # --- AN-TOOL-NY: TESTING & IAM ---
-alias k6-gen="$AN_TOOLS_SCRIPT_DIR/testing/generate_k6_from_swagger.sh"
+alias k6-gen="$AN_TOOLS_SCRIPT_DIR/testing/generate-k6-from-swagger.sh"
 alias jwt-decode="$AN_TOOLS_SCRIPT_DIR/iam/jwt-decoder.sh"
 
 # --- AN-TOOL-NY: DEVELOPMENT & LOCAL OPS ---

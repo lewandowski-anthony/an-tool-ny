@@ -182,7 +182,7 @@ Identifies and forcefully terminates processes blocking a specified local TCP po
 Converts functional Swagger specs into standalone modular k6 typescript execution projects.
 * **Direct Call**:
   ```bash
-  ./scripts/testing/generate_k6_from_swagger.sh --swagger [https://api.example.com/v3/api-docs](https://api.example.com/v3/api-docs) --output ./load-tests
+  ./scripts/testing/generate-k6-from-swagger.sh --swagger [https://api.example.com/v3/api-docs](https://api.example.com/v3/api-docs) --output ./load-tests
   ```
 * **Alias Usage**:
   ```bash

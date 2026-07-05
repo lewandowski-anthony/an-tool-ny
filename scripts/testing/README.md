@@ -1,106 +1,104 @@
-# Automated Testing 
+# OpenAPI Performance Testing Toolkit
 
-This script establishes the **Automated Testing & Environment Smoke Diagnostics** category within your toolkit. It focuses on shift-left testing automation—allowing developers and DevOps engineers to
-run instant, localized, or remote integration health-checks across an entire microservice architecture before shipping code.
-
----
-
-## 📋 Updated Toolkit Category Matrix
-
-Your automated toolkit now covers the complete development lifecycle:
-
-| Category                            | Script Name                 | Target Domain        | Primary Focus                   |
-|:------------------------------------|:----------------------------|:---------------------|:--------------------------------|
-| **Automated Testing & Diagnostics** | `api-smoke-test.sh` *(New)* | Application Layers   | Endpoint & Contract Validations |
-| **IAM & Security Diagnostics**      | `decode-jwt.sh`             | Token Authentication | Privacy-First Local Inspection  |
-| **Port & Process Management**       | `kill-port.sh`              | Host Network Layer   | Local Conflict Resolution       |
-| **Docker Housekeeping**             | `clean-docker.sh`           | Container Daemon     | Resource Reclaiming & Cleanup   |
-| **DevSecOps Integration**           | `scan-docker.sh`            | Container Images     | Vulnerability Auditing          |
+This specialized extension of the toolkit introduces comprehensive performance, load, and stress testing automation. It provides scripts to parse OpenAPI/Swagger specifications (JSON or YAML) and automatically bootstrap functional performance project architectures for three leading industry frameworks: Apache JMeter, Gatling, and Grafana k6.
 
 ---
 
-## 🚀 Utility Specification: Parallel API Smoke Tester (`api-smoke-test.sh`)
+## Technical Architecture Overview
 
-When deploying a stack of containerized services locally or upgrading components in a staging cluster, validating that all HTTP gateways, authentication routes, and downstream service endpoints are
-operating correctly can be tedious.
+The scripts utilize Node.js package execution layers to handle schema conversion, followed by inline file manipulation to inject dynamic configuration parameters. This converts static API snapshots into ready-to-execute load testing suites that accept dynamic runtime values.
 
-`api-smoke-test.sh` consumes a simple manifest file or arrays of target endpoints, evaluates their real-time HTTP response headers, validates structural success states, measures millisecond latencies,
-and yields clean diagnostic metrics.
+### Framework Matrix
 
-### Key Features
+| Script | Engine / Generator | Target Platform | Core Deliverables |
+| :--- | :--- | :--- | :--- |
+| `generate-gatling-from-swagger.sh` | `@openapitools/openapi-generator-cli` | Gatling (Scala) | Complete Maven-backed Gatling simulation project |
+| `generate-jmeter-from-swagger.sh` | `@openapitools/openapi-generator-cli` | Apache JMeter | Parameterized `.jmx` Test Plan XML |
+| `generate-k6-from-swagger.sh` | `@grafana/openapi-to-k6` | Grafana k6 (TypeScript) | Tag-grouped client modules with a consolidated `main.ts` orchestration layer |
 
-* **Custom Threshold Validations:** Checks both expected HTTP response codes (e.g., `200`, `201`, `401`) and flags performance degradation if response latencies cross custom millisecond thresholds.
-* **No Bulky Dependencies:** Built purely using advanced internal `curl` write-out formats (`%{http_code}`, `%{time_total}`), eliminating the need for complex external testing runtimes during quick
-  sanity checks.
-* **Inline Dynamic Manifest Evaluation:** Accepts text-based configuration targets so your testing sweeps can change context instantly depending on target testing suites.
+---
 
-### Source Code
+## Prerequisites
 
+Ensure the following runtimes and execution command-line boundaries are available on the host machine:
+
+* **Bash Environment**: Optimized for standard Unix/Linux shells or macOS terminals.
+* **Node.js & npx**: Required across all three scripts to run the containerized ecosystem generators via `npx`.
+* **Sed Toolchain**: Standard utility used for stream editing during properties injection.
+* **Java Runtime Environment (JRE)**: Necessary for final execution of the generated Gatling and JMeter suites.
+
+---
+
+## Script Breakdown & Command Reference
+
+All scripts accept standardized flags for setting input schemas and target outputs. If the output parameter is omitted, files default to a `results` directory within the script's root execution space.
+
+### 1. Gatling Test Suite Generator (`generate-gatling-from-swagger.sh`)
+
+This script orchestrates the generation of a production-ready Scala-based Gatling performance workspace.
+
+* **Automation Mechanism**: Instructs the OpenAPITools engine to compile the target specification into a `scala-gatling` module blueprint.
+* **Dynamic Property Overrides**: It programmatically scans the target workspace for the generated `*Simulation.scala` script. It intercepts the default static single-user baseline (`atOnceUsers(1)`) and swaps it out with an optimized dynamic user ramp configuration block:
+  $$\text{rampUsers}(\text{vusers}).\text{during}(\text{duration})$$
+  This leverages fallback defaults ($\text{vusers} = 5$, $\text{duration} = 10\text{ seconds}$) if no environmental properties are declared at execution time.
+
+#### Execution Syntax
 ```bash
-#!/bin/bash
+./generate-gatling-from-swagger.sh --swagger ./path/to/api-spec.yaml -o ./gatling-suite
+```
 
-set -uo pipefail
+#### Running the Generated Tests
+Navigate into the generated target directory and execute using the Apache Maven wrapper properties:
+```bash
+cd ./gatling-suite
+mvn gatling:test -Dvusers=20 -Dduration=60
+```
 
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-YELLOW='\033[0;33m'
-BLUE='\033[0;34m'
-NC='\033[0;37m'
-BOLD='\033[1m'
+### 2. JMeter Test Plan Generator (`generate-jmeter-from-swagger.sh`)
 
-MANIFEST_FILE=${1:-"endpoints.txt"}
-LATENCY_THRESHOLD_SECS="1.5" # 1500 milliseconds warning threshold
+This utility builds an XML-based test configuration plan ready to open in the JMeter GUI or run headlessly inside continuous integration (CI) environments.
 
-if [ ! -f "$MANIFEST_FILE" ]; then
-    echo -e "${YELLOW}ℹ No endpoint manifest file found at '$MANIFEST_FILE'. Creating a mock template...${NC}"
-    mkdir -p "$(dirname "$MANIFEST_FILE")" 2>/dev/null || true
-    cat << 'EOF' > "$MANIFEST_FILE"
-# Format: TARGET_URL|EXPECTED_STATUS_CODE|ENDPOINT_LABEL
-http://localhost:8080/actuator/health|200|Spring-Boot-Health
-[https://httpbin.org/status/200](https://httpbin.org/status/200)|200|HttpBin-Baseline
-[https://httpbin.org/status/401](https://httpbin.org/status/401)|401|Auth-Gateway-Sim
-EOF
-    echo -e "${GREEN}✔ Generated template manifest at '$MANIFEST_FILE'. Please configure it and rerun.${NC}"
-    exit 0
-fi
+* **Automation Mechanism**: Provisions standard endpoints via the OpenAPITools `jmeter` archetype.
+* **Dynamic Property Overrides**: Uses targeted stream replacements to configure properties within the underlying XML tree:
+    * Modifies `ThreadGroup.num_threads` from a static 1 to the dynamic JMeter property context `${__P(vusers,5)}`.
+    * Sets `ThreadGroup.scheduler` explicitly to `true` to enable time-boxed configurations.
+    * Maps `ThreadGroup.duration` to resolve dynamically via `${__P(duration,10)}`.
 
-echo -e "${BLUE}${BOLD}Starting Architecture Smoke Testing Suite...${NC}"
-echo -e "Reading target manifest: ${YELLOW}$MANIFEST_FILE${NC}\n"
+#### Execution Syntax
+```bash
+./generate-jmeter-from-swagger.sh --swagger ./path/to/api-spec.json -o ./jmeter-suite
+```
 
-FAILED_TESTS=0
-PASSED_TESTS=0
+#### Running the Generated Tests
+Run the output plan file headlessly using the CLI execution flags, passing your custom load configurations via the `-J` prefix:
+```bash
+jmeter -n -t ./jmeter-suite/Apis.jmx -l ./jmeter-suite/results.jtl -j ./jmeter-suite/jmeter.log -Jvusers=20 -Jduration=60
+```
 
-echo -e "${BOLD}%-25s │ %-6s │ %-10s │ %-8s │ %-s${NC}" "ENDPOINT LABEL" "EXPECT" "RECEIVED" "LATENCY" "STATUS"
-echo "──────────────────────────┼────────┼────────────┼──────────┼───────────────"
+### 3. Grafana k6 Script Generator (`generate-k6-from-swagger.sh`)
 
-while read -r line || [ -n "$line" ]; do
-    # Strip comments and empty blank lines
-    [[ "$line" =~ ^#.*$ ]] && continue
-    [[ -z "$line" ]] && continue
+This utility utilizes the Grafana conversion engine to establish modern JavaScript/TypeScript testing structures.
 
-    URL=$(echo "$line" | cut -d'|' -f1)
-    EXPECTED_CODE=$(echo "$line" | cut -d'|' -f2)
-    LABEL=$(echo "$line" | cut -d'|' -f3)
+* **Automation Mechanism**: Invokes `@grafana/openapi-to-k6` with tag-mode flag parameters to separate endpoints cleanly into individual functional TypeScript file components.
+* **Dynamic Property Overrides**: Automatically builds a centralized `main.ts` runner. It parses all generated API sub-modules, writes clean `import` blocks, instantiates the underlying client objects, and builds a comprehensive execution template.
+* **Service Level Objectives**: Employs baseline options defining standard virtual user parameters ($\text{vus} = 5$, $\text{duration} = 10\text{s}$) alongside strict verification thresholds:
+    * $\text{http\_req\_failed} < 0.02$ (Error rate strictly below $2\%$).
+    * $\text{http\_req\_duration} < 1000$ (The $95\text{-th}$ percentile response duration must stay under $1000\text{ ms}$).
 
-    # Execute lightweight non-allocating curl request probe
-    RESPONSE=$(curl -s -o /dev/null -w "%{http_code}|%{time_total}" --connect-timeout 4 "$URL" 2>/dev/null || echo "000|0.000")
-    
-    HTTP_CODE=$(echo "$RESPONSE" | cut -d'|' -f1)
-    TOTAL_TIME=$(echo "$RESPONSE" | cut -d'|' -f2)
-    
-    # Evaluate Status Code Matching
-    if [ "$HTTP_CODE" -eq "$EXPECTED_CODE" ]; then
-        STATUS_STRING="${GREEN}✔ PASS${NC}"
-        ((PASSED_TESTS++))
-    else
-        STATUS_STRING="${RED}✘ FAIL (Mismatch)${NC}"
-        ((FAILED_TESTS++))
-    fi
+#### Execution Syntax
+```bash
+./generate-k6-from-swagger.sh --swagger ./path/to/api-spec.yaml -o ./k6-suite
+```
 
-    # Evaluate Latency Degradation
-    LATENCY_ALERT=""
-    if (( $(echo "$TOTAL_TIME > $LATENCY_THRESHOLD_SECS" | bc -l 2>/dev/null || echo 0) )); then
-        LATENCY_ALERT="${YELLOW}(SLOW)${NC}"
-    fi
+#### Running the Generated Tests
+Execute the compiled typescript test profile directly using the k6 runtime toolchain:
+```bash
+k6 run ./k6-suite/main.ts
+```
 
-    printf "%-25s │ %-6s │ %-10s │ %-7ss │ %b\n" "$LABEL" "$EXPECTED_CODE" "$HTTP_CODE" "$
+---
+
+## Error Avoidance and Guardrails
+
+* **Shell Protections**: The Gatling and JMeter scripts are compiled with strict shell behaviors (`set -euo pipefail`). This means the script execution halts instantly if any command fails or if a command references an unassigned environment variable, shielding directory files from malformed state adjustments.
+* **Output Isolation**: Always make sure your destination paths are separate from core source code directories, as the target code generators recreate structure trees from scratch within the given output destination directories.
