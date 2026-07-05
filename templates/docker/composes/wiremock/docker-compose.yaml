@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  external-api-mock:
+    image: wiremock/wiremock:3.9.1
+    ports:
+      - "8089:8080"
+    volumes:
+      - ./mocks/mappings:/home/wiremock/mappings
+      - ./mocks/__files:/home/wiremock/__files
+    command: ["--verbose", "--global-response-templating"]
