@@ -41,7 +41,7 @@ case "${OS_TYPE}" in
                 *m) SECONDS=$(( ${DURATION%m} * 60 )) ;;
                 *h) SECONDS=$(( ${DURATION%h} * 3600 )) ;;
                 *) SECONDS=$DURATION ;;
-            case
+            esac
             caffeinate -idt "$SECONDS"
         else
             caffeinate -id

@@ -248,9 +248,7 @@ interface Discount {
 
 	double apply(double total);
 }
-checkout.
-
-setDiscount(total ->total *0.9);
+checkout.setDiscount(total ->total *0.9);
 ```
 
 ### Java Examples
